@@ -1,4 +1,4 @@
-# [Unity 2D] RPG DemoProject  : YOU
+# [Unity 2D] CasualAction DemoProject : YOU
 
 플레이 영상 : https://youtu.be/DXausfETae0?si=pR9YFLdsrxy2ShNM
 
