@@ -10,28 +10,27 @@ using UnityEngine.TextCore.Text;
 
 public class InventoryUI : MonoBehaviour
 {
-    // 외부 참조
     private InventoryDatabase invenDB;
     private Inventory inven;
+
+    private bool activeInventory = false;
+
+    private List<Character.CharacterData> filteredCharacters = new List<Character.CharacterData>();
+    private List<Item.ItemData> filteredItems = new List<Item.ItemData>();
 
     [Header("패널")]
     [SerializeField] private GameObject playerUI;
     [SerializeField] private GameObject inventoryPanel;
+
     [Header("텍스트")]
     [SerializeField] private TextMeshProUGUI itemSlotNumText;
     [SerializeField] private TextMeshProUGUI characterSlotNumText;
+
     [Header("슬롯")]
     public ItemSlot[] itemSlots;
     public CharacterSlot[] characterSlots;
     [SerializeField] private Transform itemSlotHolder;
     [SerializeField] private Transform characterSlotHolder;
-
-    // 리스트    
-    private List<Character.CharacterData> filteredCharacterList = new List<Character.CharacterData>();
-    private List<Item.ItemData> filteredItemList = new List<Item.ItemData>();
-
-    // 인벤토리 ON/OFF
-    private bool activeInventory = false;
 
     private void Awake()
     {
@@ -59,32 +58,25 @@ public class InventoryUI : MonoBehaviour
 
         //characterSlotNumText.text = string.Format("{0} / {1}", inven.acquiredCharacters, characterSlots.Length);
         characterSlotNumText.text = string.Format("{0} / {1}", inven.acquiredCharacters, inven.CharacterSlotCnt);
-
     }
 
     void FixedUpdate()
     {
-        ////itemSlotNumText.text = string.Format("{0} / {1}", inven.acquiredItems, itemSlots.Length);
-
-        ////characterSlotNumText.text = string.Format("{0} / {1}", inven.acquiredCharacters, characterSlots.Length);
+        //itemSlotNumText.text = string.Format("{0} / {1}", inven.acquiredItems, itemSlots.Length);
+        //characterSlotNumText.text = string.Format("{0} / {1}", inven.acquiredCharacters, characterSlots.Length);
         characterSlotNumText.text = string.Format("{0} / {1}", inven.acquiredCharacters, inven.CharacterSlotCnt);
         itemSlotNumText.text = string.Format("{0} / {1}", inven.acquiredItems, inven.ItemSlotCnt);
     }
 
-
     #region 아이템 인벤토리 UI
     
-    public void RemoveItemSlotAt(int index)
+    public void RemoveItem(Item.ItemData item)
     {
-        if (index >= 0 && index < characterSlots.Length)
+        if (item != null)
         {
-            itemSlots[index].RemoveItemSlot();
-        }
-
-        if (index >= 0 && index < filteredItemList.Count)
-        {
-            var itemSlotToRemove = filteredItemList[index];
-            inven.items.Remove(itemSlotToRemove);
+            inven.RemoveItem(item);
+            // RedrawItemSlotUI는 inven.onChangeItem 이벤트를 통해 자동 호출될 수도 있으나
+            // 현재 코드 구조상 명시적으로 호출해주는 것이 안전함
             RedrawItemSlotUI();
         }
     }
@@ -98,10 +90,10 @@ public class InventoryUI : MonoBehaviour
         }
 
         // 슬롯 데이터 필터링
-        filteredItemList = inven.items.FindAll(item => item.type == invenDB.itemCurSubType);
-        for (int i = 0; i < filteredItemList.Count && i < itemSlots.Length; i++)
+        filteredItems = inven.items.FindAll(item => item.type == invenDB.itemCurSubType);
+        for (int i = 0; i < filteredItems.Count && i < itemSlots.Length; i++)
         {
-            itemSlots[i].itemData = filteredItemList[i];
+            itemSlots[i].itemData = filteredItems[i];
             itemSlots[i].UpdateItemSlotUI();
         }
     }
@@ -142,25 +134,22 @@ public class InventoryUI : MonoBehaviour
             characterSlots[i].RemoveCharacterSlot();
         }
 
-        filteredCharacterList = inven.characters.FindAll(character => character.type == invenDB.characterCurSubType);
+        filteredCharacters = inven.characters.FindAll(character => character.type == invenDB.characterCurSubType);
 
-        for (int i = 0; i < filteredCharacterList.Count && i < characterSlots.Length; i++)
+        for (int i = 0; i < filteredCharacters.Count && i < characterSlots.Length; i++)
         {
-            characterSlots[i].characterData = filteredCharacterList[i];
+            characterSlots[i].characterData = filteredCharacters[i];
             characterSlots[i].UpdateCharacterSlotUI();
         }
     }
 
     // 특정 슬롯만 비움
-    public void RemoveCharacterSlotAt(int index)
+    public void RemoveCharacter(Character.CharacterData character)
     {
-        if (index >= 0 && index < filteredCharacterList.Count)
+        if (character != null)
         {
-            var characterToRemove = filteredCharacterList[index];
-            inven.characters.Remove(characterToRemove);
+            inven.RemoveCharacter(character);
             RedrawAllCharacterSlotsUI();
-            //characterSlots[index].characterData = filteredCharacterList[index];
-            //characterSlots[index].RemoveCharacterSlot();
         }
     }
 

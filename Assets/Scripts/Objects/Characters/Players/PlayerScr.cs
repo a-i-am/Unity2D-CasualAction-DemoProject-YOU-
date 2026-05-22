@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Assets
 {
-    public class PlayerScr : Singleton<PlayerScr>
+    public class Player : Singleton<Player>
     {
         public ParticleSystem CastingSpellEffect;
         public ObjectPoolManager projectilePool;

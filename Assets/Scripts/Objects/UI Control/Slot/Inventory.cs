@@ -10,13 +10,10 @@ public class Inventory : Singleton<Inventory>
 {
     [Header("외부 참조")]
     [HideInInspector] public InventoryUI invenUI;
-    private PlayerScr playerScr;
+    private Player player;
     private Enemy enemy;
 
-    // Enum State
-    private EnemyState enemyState;
-    // Delegate
-    // 캐릭터
+        // 캐릭터
     public delegate void OnChangeCharacter();
     public delegate void OnCharacterSlotCountChange(int val);
     public OnChangeCharacter onChangeCharacter;
@@ -39,7 +36,7 @@ public class Inventory : Singleton<Inventory>
     [HideInInspector] public int acquiredItems = 0;
     [HideInInspector] public int pickupMobCount = 0;
     [SerializeField] private int characterSlotCnt;
-    [SerializeField] private int itemSlotCnt;
+    [SerializeField] private int itemSlotCnt;    private int faintedLayerMask;
 
     public int CharacterSlotCnt
     {
@@ -47,7 +44,7 @@ public class Inventory : Singleton<Inventory>
         set
         {
             characterSlotCnt = value;
-            onCharacterSlotCountChange.Invoke(characterSlotCnt);
+            onCharacterSlotCountChange?.Invoke(characterSlotCnt);
         }
     }
     public int ItemSlotCnt
@@ -56,20 +53,15 @@ public class Inventory : Singleton<Inventory>
         set
         {
             itemSlotCnt = value;
-            onItemSlotCountChange.Invoke(itemSlotCnt);
+            onItemSlotCountChange?.Invoke(itemSlotCnt);
         }
     }
 
-    // 팔로워 로직
-    private bool isNotHaveFollower;
-
-
-
     private void Awake()
     {
-        playerScr = GetComponent<PlayerScr>();
+        player = GetComponent<Player>();
+        faintedLayerMask = LayerMask.GetMask("Fainted");
     }
-
     void Start()
     {
         CharacterSlotCnt = characterSlotCnt;
@@ -82,50 +74,65 @@ public class Inventory : Singleton<Inventory>
         DetectMob();
     }
 
-    public bool AddCharacter(Character.CharacterData _character)
+    public bool AddCharacter(Character.CharacterData character)
     {
-        if (onChangeCharacter != null && characters.Count < CharacterSlotCnt)
+        if (characters.Count < CharacterSlotCnt)
         {
-            characters.Add(_character);
+            characters.Add(character);
             acquiredCharacters++;
             onChangeCharacter?.Invoke();
             return true;
         }
         else return false;
     }
-
     public bool AddItem(Item.ItemData _item)
     {
-        if (onChangeItem != null && items.Count < ItemSlotCnt)
+        if (items.Count < ItemSlotCnt)
         {
             items.Add(_item);
             acquiredItems++;
             
-            onChangeItem.Invoke();
+            onChangeItem?.Invoke();
             
             return true;
         }
         else return false;
     }
-
+    public void RemoveItem(Item.ItemData _item)
+    {
+        if (items.Remove(_item))
+        {
+            acquiredItems--;
+            onChangeItem?.Invoke();
+        }
+    }
+    public void RemoveCharacter(Character.CharacterData _character)
+    {
+        if (characters.Remove(_character))
+        {
+            acquiredCharacters--;
+            onChangeCharacter?.Invoke();
+            Debug.Log("Inventory.cs - RemoveCharacter (Object)");
+        }
+    }
     public void RemoveItem(int _index)
     {
-        items.RemoveAt(_index);
-        acquiredItems--;
-        
-        onChangeItem.Invoke();
+        if (_index >= 0 && _index < items.Count)
+        {
+            items.RemoveAt(_index);
+            acquiredItems--;
+            onChangeItem?.Invoke();
+        }
     }
-
     public void RemoveCharacter(int _index)
     {
         if (_index >= 0 && _index < characters.Count)
         {
             characters.RemoveAt(_index);
             acquiredCharacters--;
-            //onChangeCharacter.Invoke();
-            Debug.Log("Inventory.cs - RemoveCharacter");
+            onChangeCharacter?.Invoke();
+            Debug.Log("Inventory.cs - RemoveCharacter (Index)");
         }
-        else return;
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -139,32 +146,27 @@ public class Inventory : Singleton<Inventory>
             }
         }
     }
-    private void DetectMob()
+private void DetectMob()
     {
-        // 플레이어의 앞 방향으로 레이캐스트를 발사하여 적을 감지합니다.
-        RaycastHit2D hitRight = Physics2D.Raycast(transform.position, transform.right, 5f, LayerMask.GetMask("Fainted"));
-        RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, -transform.right, 5f, LayerMask.GetMask("Fainted"));
+        RaycastHit2D hitRight = Physics2D.Raycast(transform.position, transform.right, 5f, faintedLayerMask);
+        RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, -transform.right, 5f, faintedLayerMask);
 
-        RaycastHit2D hit = hitRight.collider != null ? hitRight : hitLeft.collider != null ? hitLeft : new RaycastHit2D();
+        RaycastHit2D hit;
+        if (hitRight.collider != null) hit = hitRight;
+        else if (hitLeft.collider != null) hit = hitLeft;
+        else return;
 
-        if (hit.collider != null)
+        enemy = hit.collider.GetComponent<Enemy>();
+        if (enemy == null) return;
+
+        var data = enemy.GetCharacter();
+        if (data == null) return;
+
+        if (Input.GetKeyDown(KeyCode.V))
         {
-            enemy = hit.collider.GetComponent<Enemy>();
-            if (enemy != null && enemyState != EnemyState.Fainted)
-            {
-                if (Input.GetKeyDown(KeyCode.V)) // Collect
-                {
-                    AddCharacter(enemy.GetCharacter());
-
-                    pickupMobCount += 1;
-
-                    if (enemy != null)
-                    {
-                        Destroy(enemy.gameObject);
-                        Debug.Log("enemy 획득!");
-                    }
-                }
-            }
+            AddCharacter(data);
+            pickupMobCount += 1;
+            Destroy(enemy.gameObject);
         }
     }
 }

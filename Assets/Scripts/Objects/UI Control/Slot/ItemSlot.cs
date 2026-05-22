@@ -10,7 +10,7 @@ public class ItemSlot : MonoBehaviour
     public Image itemIcon;
     public Item.ItemData itemData;
 
-    private PlayerScr player;
+    private Player player;
 
     [Header("외부 참조")]
     private Pointable pointable;
@@ -29,7 +29,7 @@ public class ItemSlot : MonoBehaviour
     }
     private void Start()
     {
-        health = PlayerScr.Instance.health;
+        health = Player.Instance.health;
     }
 
     public void OnPointerUp()
@@ -48,12 +48,9 @@ public class ItemSlot : MonoBehaviour
 
         if (isUse && inventoryUI != null)
         {
-            inventoryUI.RemoveItemSlotAt(itemSlotnum);
-            //Inventory.Instance.RemoveItem(itemSlotnum);
-            //Inventory.Instance.acquiredItems--;
+            inventoryUI.RemoveItem(itemData);
         }
     }
-
 
     public void UpdateItemSlotUI()
     {

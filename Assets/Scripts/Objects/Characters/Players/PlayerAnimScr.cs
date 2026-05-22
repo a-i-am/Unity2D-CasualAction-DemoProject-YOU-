@@ -8,11 +8,11 @@ namespace Assets
     {
         private Animator anim;
         private float inputHorizontal;
-        PlayerScr player;
+        Player player;
         void Awake()
         {
             anim = GetComponentInChildren<Animator>();
-            player = GetComponent<PlayerScr>();
+            player = GetComponent<Player>();
         }
         #region MoveSpeedComment
         //public float MoveSpeed

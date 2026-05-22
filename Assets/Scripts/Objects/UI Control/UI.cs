@@ -8,7 +8,7 @@ using static UnityEngine.Rendering.DebugUI;
 
 public class UI : MonoBehaviour
 {
-    private PlayerScr playerScr;
+    private Player player;
     // Inventory
     Inventory inven;
 
@@ -70,7 +70,7 @@ public class UI : MonoBehaviour
 
     private void Awake()
     {
-        playerScr = GameObject.FindWithTag("Player").GetComponent<PlayerScr>();
+        player = GameObject.FindWithTag("Player").GetComponent<Player>();
     }
 
     void Start()
@@ -83,7 +83,7 @@ public class UI : MonoBehaviour
             playerHP.color = fullColor;
         }
         // 초기화
-        originalProjectilePrefab = playerScr.projectilePrefab; // 원래 projectilePrefab 초기화
+        originalProjectilePrefab = player.projectilePrefab; // 원래 projectilePrefab 초기화
     }
 
     void Update()
@@ -181,7 +181,7 @@ public class UI : MonoBehaviour
         if(newSkillPrefab == skillPrefabLevel1 || newSkillPrefab == skillPrefabLevel2)
         {
             currentProjectilePrefab = newSkillPrefab;
-            playerScr.projectilePrefab = currentProjectilePrefab;
+            player.projectilePrefab = currentProjectilePrefab;
             // projectilePrefab을 동적으로 등록된 프리팹으로 변경
             // 코루틴을 호출하여 일정 시간 후에 원래의 projectilePrefab으로 되돌리기
             StartCoroutine(ResetProjectile(skillDuration));
@@ -190,7 +190,7 @@ public class UI : MonoBehaviour
         else
         {
             currentAOEPrefab = newSkillPrefab;
-            playerScr.playerAOEPrefab = currentAOEPrefab;
+            player.playerAOEPrefab = currentAOEPrefab;
             StartCoroutine(ResetAOE(skillDuration));
         } 
     }
@@ -200,14 +200,14 @@ public class UI : MonoBehaviour
         yield return new WaitForSeconds(delay);
 
         // 원래 projectilePrefab으로 되돌리기
-        playerScr.projectilePrefab = originalProjectilePrefab;
+        player.projectilePrefab = originalProjectilePrefab;
     }
 
     private IEnumerator ResetAOE(float delay)
     {
         yield return new WaitForSeconds(delay);
-        playerScr.playerAOEPrefab = null;
-        playerScr.isUseAOE = false;
+        player.playerAOEPrefab = null;
+        player.isUseAOE = false;
         skillPrefab = null;
     }
 }

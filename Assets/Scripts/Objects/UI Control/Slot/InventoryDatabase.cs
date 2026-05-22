@@ -15,9 +15,7 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
     private List<Character.CharacterData> myCharacterList = new List<Character.CharacterData>();
     private List<Item.ItemData> myItemList = new List<Item.ItemData>();
 
-    // 외부 클래스 참조
     private Inventory inven;
-    // 델리게이트
     public delegate void OnCharacterSubTab();
     public delegate void OnItemSubTab();
     public OnCharacterSubTab onCharacterSubTab;
@@ -55,13 +53,16 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
     [SerializeField] private GameObject fieldItemPrefab;
     [SerializeField] private Vector3[] pos;
 
+    [Header("효과 에셋")]
+    [SerializeField] private ItemHealingEffect healingEffect;
+
     void Start()
     {
         inven = Inventory.Instance;
         
         // Start Parse DB Data  // JSON txt DB 직렬화-역직렬화
-            SerializeCharactersDB();
-            SerializeItemsDB();
+            // SerializeCharactersDB();
+            // SerializeItemsDB();
             DeserializeCharactersDB();
             DeserializeItemsDB();
         
@@ -108,10 +109,12 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
     }
     private void LoadCharactersResources()
     {
-        string[] characterLine = characterDBText.text.Substring(0, characterDBText.text.Length - 1).Split('\n');
+        string textData = characterDBText.text.Replace("\r", "");
+        string[] characterLine = textData.Substring(0, textData.Length).Split('\n');
 
         for (int i = 0; i < characterLine.Length; i++)
         {
+            if (string.IsNullOrEmpty(characterLine[i])) continue;
             string[] row = characterLine[i].Split('\t');
             Sprite characterImage = Resources.Load<Sprite>(row[5]); // 캐릭터 이미지 경로에서 스프라이트 로드
             Follower characterPrefab = Resources.Load<Follower>(row[6]); // 캐릭터 프리팹 경로에서 로드
@@ -130,14 +133,13 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
     }
     private void LoadItemsResources()
     {
-        // 텍스트 파일 읽기
-        itemDBText = Resources.Load<TextAsset>("Text/ItemDatabase");
-
         // 텍스트를 줄 단위로 파싱
-        string[] itemLines = itemDBText.text.Substring(0, itemDBText.text.Length - 1).Split('\n');
+        string textData = itemDBText.text.Replace("\r", "");
+        string[] itemLines = textData.Substring(0, textData.Length).Split('\n');
         
         for (int i = 0; i < itemLines.Length; i++)
         {
+            if (string.IsNullOrEmpty(itemLines[i])) continue;
             string[] row = itemLines[i].Split('\t');
             string fullPath = row[5];
             string spritePath = fullPath.Substring(0, fullPath.LastIndexOf('/')).Replace("Assets/Resources/", "");
@@ -167,16 +169,13 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
 
     #endregion
 
-    #region Get Ready ON Data 
+    #region Get Ready On Data 
     private void ActiveCharactersList(string subTabName)
     {
         curCharacterList = inven.characters.FindAll(x => x.type == subTabName);
-        //Debug.Log($"curCharacterList 개수: {curCharacterList.Count} characters 개수 {inven.characters.Count} ");
-
-        // Character 리스트 슬롯과 텍스트 보이기
-        for (int i_Character = 0; i_Character < InvenSlot.Length; i_Character++)
+        for (int i = 0; i < InvenSlot.Length; i++)
         {
-            InvenSlot[i_Character].SetActive(i_Character < curCharacterList.Count);
+            InvenSlot[i].SetActive(i < curCharacterList.Count);
         }
     }
     private void ActiveItemsList(string subTabName)
@@ -184,9 +183,9 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
         curItemList = inven.items.FindAll(x => x.type == subTabName);
 
         // Item 리스트 슬롯과 텍스트 보이기
-        for (int i_item = 0; i_item < InvenSlot.Length; i_item++)
+        for (int i = 0; i < InvenSlot.Length; i++)
         {
-            InvenSlot[i_item].SetActive(i_item < curItemList.Count);
+            InvenSlot[i].SetActive(i < curItemList.Count);
         }
     }
     private void SetItemEffect(Item.ItemData itemData)
@@ -195,7 +194,6 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
         {
             case "Absorption":
                 // 회복 아이템이면, HealingEffect 스크립터블 오브젝트를 찾아서 연결
-                ItemHealingEffect healingEffect = Resources.Load<ItemHealingEffect>("ScriptableObjects/BigEft");
                 if (healingEffect != null)
                     itemData.efts.Add(healingEffect);
                 break;

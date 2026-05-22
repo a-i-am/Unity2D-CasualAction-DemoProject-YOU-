@@ -47,14 +47,7 @@ public class CharacterSlot : MonoBehaviour
         if (characterData == null) return;
         
             followerSpawner.SpawnFollower(characterData);
-            inven.RemoveCharacter(characterSlotnum);
-            invenUI.RemoveCharacterSlotAt(characterSlotnum);
-        // onChangeCharacter.Invoke(); // 이벤트 방식
-        /*
-         * Invoke()를 호출하면, 그 자리에 연결된 메서드들이 즉시 순차적으로 호출됨
-         * 따라서 RedrawCharacterSlotUI()는 OnClick()의 모든 동작이 끝난 후에 실행되는 것이 아니라, RemoveCharacter() 중간에 실행
-        */
-
+            invenUI.RemoveCharacter(characterData);
     }
 
     public void UpdateCharacterSlotUI()

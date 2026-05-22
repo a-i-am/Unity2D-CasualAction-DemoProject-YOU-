@@ -15,7 +15,7 @@ public class Projectile : MonoBehaviour
     [SerializeField] private ProjectileType projectileType; // 프리팹 유형 추가
     private Vector2 launchDir;
     private SpriteRenderer spriteRenderer;
-    private PlayerScr player;
+    private Player player;
     private int followerLayer = 9;    // "Follower" 레이어의 번호
     public void SetDirection(Vector2 launchDir)
     {
@@ -24,7 +24,7 @@ public class Projectile : MonoBehaviour
 
     void Start()
     {
-        player = FindObjectOfType<PlayerScr>();
+        player = FindObjectOfType<Player>();
         // 자식 오브젝트의 Transform 가져오기
         Transform childTransform = GetComponentInChildren<Transform>();
 
