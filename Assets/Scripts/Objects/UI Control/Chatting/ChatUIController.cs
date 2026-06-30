@@ -5,17 +5,17 @@ using UnityEngine.UI;
 
 public class ChatUIController : MonoBehaviour
 {
-    [SerializeField] private GameObject textChatprefab;     // 대화를 출력하는 Text UI 프리팹
-    [SerializeField] private Transform parentContent;       // 대화가 출력되는 ScrollView의 Content
-    [SerializeField] private TMP_InputField inputField;     // 대화 입력창
-    [SerializeField] private Sprite[] spriteChatInputType;  // 대화 입력 속성 버튼에 적용할 이미지 에셋
-    [SerializeField] private Image imageChatInputType;      // 대화 입력 속성 버튼의 이미지 버튼
-    [SerializeField] private TextMeshProUGUI textInput;     // 대화 입력 속성에 따라 대화 입력창에 작성되는 텍스트 색상 변경
+    [SerializeField] private GameObject textChatprefab;
+    [SerializeField] private Transform parentContent;
+    [SerializeField] private TMP_InputField inputField;
+    [SerializeField] private Sprite[] spriteChatInputType;
+    [SerializeField] private Image imageChatInputType;
+    [SerializeField] private TextMeshProUGUI textInput;
 
-    private ChatType currentInputType = ChatType.Normal;    // 현재 대화 입력 속성 (Normal, Party, Guild) 
-    private ChatType currentViewType;                       // 현재 대화 보기 속성 (Normal, Party, Guild, Whisper, System)
+    private ChatType currentInputType = ChatType.Normal;
+    private ChatType currentViewType;
     private Color currentTextColor = Color.white;
-    private List<ChatCell> chatList = new List<ChatCell>(); // 대화창에 출력되는 모든 대화를 보관하는 리스트
+    private List<ChatCell> chatList = new List<ChatCell>();
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Return) && inputField.isFocused == false)

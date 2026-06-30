@@ -9,21 +9,21 @@ public class EnemyAnimScr : MonoBehaviour
         anim = GetComponent<Animator>();
     }
 
-    //void OnCollisionEnter2D(Collision2D other)
-    //{
-    //    if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
-    //    {
-    //        EnemyScr enemy = other.gameObject.GetComponent<EnemyScr>();
-    //        dashHitVFX.transform.position = enemy.transform.position;
-    //        if (enemy != null)
-    //        {
-    //            enemy.TakeDamage();
-    //            dashHitVFX.Play();
-    //        }
-    //    }
-    //}
 
-    // Update is called once per frame
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     void Update()
     {
     }

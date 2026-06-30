@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class MovingPlatformScr : MonoBehaviour
 {
-    [SerializeField] private Transform startPos; // 발판 시작지점
-    [SerializeField] private Transform endPos; // 발판 끝 지점
-    [SerializeField] private Transform desPos; // 발판 전환(도착)지점
-    [SerializeField] private float speed; // 발판 이동속도
+    [SerializeField] private Transform startPos;
+    [SerializeField] private Transform endPos;
+    [SerializeField] private Transform desPos;
+    [SerializeField] private float speed;
 
     void Start()
     {

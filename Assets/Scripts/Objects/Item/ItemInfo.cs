@@ -1,4 +1,4 @@
-// 이건 로딩용 ItemData
+
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;

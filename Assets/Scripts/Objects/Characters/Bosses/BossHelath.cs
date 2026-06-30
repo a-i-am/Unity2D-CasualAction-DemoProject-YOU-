@@ -6,7 +6,7 @@ public class BossHelath : MonoBehaviour
     public event Action FaintedEvent;
 
     [SerializeField] private BossHPValue bossHealth;
-    //[SerializeField] private GameObject SleepingForm;
+
     private Boss boss;
     private bool bossIsHurted = false;
     private bool bossIsFainted;
@@ -27,7 +27,7 @@ public class BossHelath : MonoBehaviour
     {
         bossHealth.BossHPInitialize();
     }
-    
+
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (!bossIsFainted && !bossIsHurted && collision.gameObject.tag == "Attack")
@@ -61,7 +61,7 @@ public class BossHelath : MonoBehaviour
         bossHealth.BossCurrentVal -= 50;
         if (bossHealth.BossCurrentVal <= 0)
         {
-            Faint(); // 체력이 0 이하일 경우 몬스터 삭제
+            Faint();
         }
         else
         {
@@ -81,18 +81,18 @@ public class BossHelath : MonoBehaviour
         bossIsHurted = false;
     }
 
-    // Enemy 녹다운
+
     void Faint()
     {
         FaintedEvent.Invoke();
-        boss.SetFaint(true);  // 보스에게 Faint 상태 전달
-        // 레이어보단 is trigger 로 온오프 시키는게 나을듯. 추후 변경 예정
-        // 현재 오브젝트의 레이어를 9번(Mob)으로 변경합니다.
+        boss.SetFaint(true);
+
+
         gameObject.layer = 10;
-        Physics2D.IgnoreLayerCollision(10, 7); // Fainted(9)과 Player(7) 충돌 무시
-        Physics2D.IgnoreLayerCollision(10, 8); // Fainted(9)과 Attack(8) 충돌 무시 
-        Physics2D.IgnoreLayerCollision(10, 6); // Fainted(9)과 Enemy(6)  충돌 무시
-        Physics2D.IgnoreLayerCollision(10, 9); // Fainted(9)과 Follower(9)  충돌 무시
+        Physics2D.IgnoreLayerCollision(10, 7);
+        Physics2D.IgnoreLayerCollision(10, 8);
+        Physics2D.IgnoreLayerCollision(10, 6);
+        Physics2D.IgnoreLayerCollision(10, 9);
 
         bossIsFainted = true;
         anim.SetTrigger("Faint");

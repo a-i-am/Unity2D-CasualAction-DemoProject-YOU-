@@ -15,7 +15,7 @@ public class ItemHealingEffect : ItemEffect
 
     public override bool ExecuteRole()
     {
-        if (playerHP == null) return false;        
+        if (playerHP == null) return false;
         playerHP.PlayerCurrentVal += healingPoint;
         return true;
     }

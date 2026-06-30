@@ -10,32 +10,32 @@ public class EnemyController : MonoBehaviour
 
     [Header("몬스터 이동")]
     private int nextMove;
-    [SerializeField] private float moveSpeed = 5f; // 몬스터의 이동 속도
+    [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float chaseDistance = 8f;
     [SerializeField] private float stopDistance = 2f;
-    [SerializeField] private float chaseSpeed = 15f; // 몬스터가 플레이어를 빨리 쫓아갈 때 속도
+    [SerializeField] private float chaseSpeed = 15f;
 
     [Header("몬스터 스탯")]
-    [SerializeField] private int health = 3; // 몬스터의 체력
+    [SerializeField] private int health = 3;
 
     [Header("외부 참조")]
-    [SerializeField] private Transform player; // 플레이어의 Transform을 저장하는 변수
-    
+    [SerializeField] private Transform player;
+
     private int dashHitCount;
     public bool isFainted;
     private bool isHurted;
-    
+
     private EnemyAnimScr enemyAnimScr;
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rbEnemy;
     RaycastHit2D rayHit;
     [SerializeField] private ParticleSystem dashHitVFX;
-    //private bool enemyIsGrounded;
+
 
     private void Awake()
     {
-        //dashHitVFX = GetComponentInChildren<ParticleSystem>();
-        // Player 오브젝트를 찾아서 player에 할당
+
+
         player = GameObject.FindGameObjectWithTag("Player").transform;
         rbEnemy = GetComponent<Rigidbody2D>();
         enemyAnimScr = GetComponent<EnemyAnimScr>();
@@ -44,13 +44,13 @@ public class EnemyController : MonoBehaviour
     }
     private void Start()
     {
-        Physics2D.IgnoreLayerCollision(6, 6); // Enemy 끼리 충돌 방지
+        Physics2D.IgnoreLayerCollision(6, 6);
         Invoke("Think", 5);
     }
 
     void FixedUpdate()
     {
-        // Move
+
         if (!isHurted && !isFainted)
         {
             rbEnemy.velocity = new Vector2(moveSpeed * nextMove, rbEnemy.velocity.y);
@@ -59,16 +59,16 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // Enemy 녹다운
+
     void Faint()
     {
         isFainted = true;
-        gameObject.layer = 10; // "Fainted"
+        gameObject.layer = 10;
         gameObject.tag = "Fainted";
 
-        Physics2D.IgnoreLayerCollision(10, 7); // Fainted(10)과 Player(7) 충돌 무시
-        Physics2D.IgnoreLayerCollision(10, 8); // Fainted(10)과 Attack(8) 충돌 무시 
-        Physics2D.IgnoreLayerCollision(10, 6); // Fainted(10)과 Enemy(6)  충돌 무시
+        Physics2D.IgnoreLayerCollision(10, 7);
+        Physics2D.IgnoreLayerCollision(10, 8);
+        Physics2D.IgnoreLayerCollision(10, 6);
 
         enemyAnimScr.FaintAnimation(true);
         FaintedEvent.Invoke();
@@ -76,15 +76,15 @@ public class EnemyController : MonoBehaviour
 
     void Think()
     {
-        // Set Next Active
+
         nextMove = Random.Range(-1, 2);
         enemyAnimScr.WalkAnimation(nextMove);
 
-        // Flip Sprite
+
         if (nextMove != 0)
             spriteRenderer.flipX = nextMove == 1;
 
-        // Recursive
+
         float nextThinkTime = Random.Range(2f, 5f);
         Invoke("Think", nextThinkTime);
     }
@@ -104,12 +104,12 @@ public class EnemyController : MonoBehaviour
 
     void GroundCheckRay()
     {
-        // 앞에 땅이 있는지 체크
+
         Vector2 frontCheck = new Vector2(rbEnemy.position.x + nextMove, rbEnemy.position.y);
-        Debug.DrawRay(frontCheck, Vector2.down, Color.red); // 레이를 시각적으로 표시
+        Debug.DrawRay(frontCheck, Vector2.down, Color.red);
         rayHit = Physics2D.Raycast(frontCheck, Vector2.down, 1, LayerMask.GetMask("groundLayer"));
 
-        // 앞에 땅 없으면 방향 전환
+
         if (rayHit.collider == null)
         {
             Turn();
@@ -154,7 +154,7 @@ public class EnemyController : MonoBehaviour
             || other.gameObject.CompareTag("Attack"))
         {
             TakeDamage();
-            //dashHitVFX.Play();
+
         }
     }
 

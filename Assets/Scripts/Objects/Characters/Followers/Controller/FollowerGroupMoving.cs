@@ -3,27 +3,27 @@ using UnityEngine;
 
 public class FollowerGroupMoving : MonoBehaviour
 {
-    // Follow
+
     [SerializeField] private float moveDistance;
     [SerializeField] private float moveSpeed;
     private Transform player;
-    public float startY; // sine 시작 위치
+    public float startY;
 
     private Animator anim;
     private LayerMask groundLayer;
 
-    // Sine
-    //[SerializeField] float sineSpeed = 3.2f;
-    [SerializeField] private float amplitude = 2f; // sine 파동의 높이(움직임 범위)
-    [SerializeField] private float frequency = 1.0f; // sine 파동의 주기(운동 간격)
+
+
+    [SerializeField] private float amplitude = 2f;
+    [SerializeField] private float frequency = 1.0f;
     public bool isSineActive = true;
-    private Collider2D lastGroundCollider; // sine 시작 높이 갱신용 콜라이더
+    private Collider2D lastGroundCollider;
 
     void Awake()
     {
         anim = GetComponent<Animator>();
         groundLayer = LayerMask.GetMask("groundLayer");
-        Physics2D.IgnoreLayerCollision(7, 9); // Mob(9)과 Player(7) 충돌 무시
+        Physics2D.IgnoreLayerCollision(7, 9);
     }
 
     private void Start()
@@ -49,13 +49,13 @@ public class FollowerGroupMoving : MonoBehaviour
         transform.Translate(new Vector2(direction, 0) * Time.deltaTime * moveSpeed);
     }
 
-    // 위아래로 움직임(둥둥 뜨는 연출)
+
     void Sine()
     {
         if (isSineActive)
         {
             float sineY = startY + Mathf.Sin(Time.time * frequency) * amplitude;
-            transform.position = new Vector2(transform.position.x, sineY); // Sine()에서 계산된 Y축 위치 사용
+            transform.position = new Vector2(transform.position.x, sineY);
         }
     }
 
@@ -67,7 +67,7 @@ public class FollowerGroupMoving : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(raycastStart, Vector2.down, 0.2f, LayerMask.GetMask("groundLayer"));
         Debug.DrawRay(raycastStart, Vector2.down * 0.2f, Color.magenta);
 
-        if (hit.collider != null) // && 닿은 오브젝트의 태그가 movingPlatform이 아닌 경우에만!
+        if (hit.collider != null)
         {
             if (hit.collider != lastGroundCollider)
             {

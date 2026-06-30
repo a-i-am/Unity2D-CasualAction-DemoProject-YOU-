@@ -6,13 +6,13 @@ using TMPro;
 using UnityEngine.Playables;
 
 [System.Serializable]
-public class DialougeArea 
+public class DialougeArea
 {
     [TextArea]
     public string dialogue;
     public Sprite actorIcon;
-    //public Sprite iconBack;
-    public string actorName;   
+
+    public string actorName;
     public string title;
 }
 
@@ -46,7 +46,7 @@ public class Dialouge : MonoBehaviour
         image_IconBack.gameObject.SetActive(_flag);
         txt_Dialogue.gameObject.SetActive(_flag);
         txt_TitleText.gameObject.SetActive(_flag);
-        txt_ActorName.gameObject.SetActive(_flag);  
+        txt_ActorName.gameObject.SetActive(_flag);
         isDialogue = _flag;
     }
 
@@ -95,7 +95,7 @@ public class Dialouge : MonoBehaviour
     {
         if(isDialogue)
         {
-            if(Input.GetKeyDown(KeyCode.D)) 
+            if(Input.GetKeyDown(KeyCode.D))
             {
                 if (count < dialougeArea.Length)
                     NextDialogue();

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AOEAttack : MonoBehaviour
 {
-    [SerializeField] private SkillType skillType;  // 어떤 스킬인지
+    [SerializeField] private SkillType skillType;
     [SerializeField] private float lifeTime;
 
     private void Start()

@@ -11,7 +11,7 @@ public class PlayerHPValue
     [SerializeField] private float playerMaxVal;
     [SerializeField] private float playerCurrentVal;
 
-    //public float MaxVal { get => maxVal; set => maxVal = value; }
+
 
     #region Player HP Stat
 

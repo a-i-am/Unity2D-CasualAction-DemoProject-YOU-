@@ -10,7 +10,7 @@ public class FollowerSpawner : MonoBehaviour
     private Follower follower;
     [Header("팔로워 자리")]
     [SerializeField] private List<Transform> followerPositions;
-    [SerializeField] private Queue<Transform> emptySpawnQueue = new Queue<Transform>(); // 팔로워 공석 체크
+    [SerializeField] private Queue<Transform> emptySpawnQueue = new Queue<Transform>();
     private Transform spawnPos;
 
     private void Start()
@@ -24,7 +24,7 @@ public class FollowerSpawner : MonoBehaviour
         foreach (Transform pos in followerPositions)
         {
             if (pos.childCount != 0 || !pos.gameObject.activeSelf) continue;
-            
+
             emptySpawnQueue.Enqueue(pos);
             pos.gameObject.SetActive(false);
         }
