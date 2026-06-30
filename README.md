@@ -8,11 +8,14 @@
 
 기절시킨 적을 수집하고 아군 팔로워로 다시 소환하는 2D 캐주얼 액션 게임입니다.
 
+최종 업데이트: 2026-06-30
+첫 프로젝트이며, 2024년 하반기에 비연속적으로 약 3개월 작업했습니다.
+
 ### 프로젝트 정보
 
 | 항목 | 내용 |
 | --- | --- |
-| 개발 기간 | 2025-09 - 2025-12 |
+| 개발 기간 | 2024-08 - 2024-10 |
 | 리팩터링 기간 | 2026-05-22 - 2026-06-01 |
 | 인원 | 1인 |
 | 엔진 | Unity 2022.3.28f1 |
@@ -54,13 +57,26 @@
 
 공유 원본 데이터와 실행 중 생성되는 상태를 분리해야 인벤토리, 팔로워, 타깃 시스템을 독립적으로 수정할 수 있다는 점을 배웠습니다.
 
+### 브랜치 및 커밋 정리
+
+- 리팩터링 커밋은 `refactor` / `refactoring` 키워드 기준으로 구분했습니다.
+- 새 정리본은 인벤토리와 팔로워 수정 사항을 README에서 바로 확인할 수 있게 했습니다.
+
+### 업데이트 계획
+
+- 플레이 영상과 PDF 링크는 유지합니다.
+- 필요 시 팔로워 AI나 컷신 캡처를 추가합니다.
+
 ## English
 
 YOU is a 2D casual action game where stunned enemies can be collected and redeployed as allied followers.
 
+Last updated: 2026-06-30
+This was my first project, worked on intermittently for about three months in the second half of 2024.
+
 ### Project
 
-- Development: 2025-09 - 2025-12
+- Development: 2024-08 - 2024-10
 - Refactoring: 2026-05-22 - 2026-06-01
 - Team: Solo
 - Engine: Unity 2022.3.28f1
@@ -97,3 +113,13 @@ YOU is a 2D casual action game where stunned enemies can be collected and redepl
 ### Lessons
 
 Separating immutable definitions from runtime ownership made inventory, targeting, and follower behavior easier to reason about and refactor.
+
+### Branch and Commit Notes
+
+- Refactoring commits are grouped by the `refactor` / `refactoring` keywords.
+- The README keeps inventory, follower, and targeting changes visible in one place.
+
+### Update Plan
+
+- Keep the gameplay video and PDF links visible.
+- Add follower AI or cutscene captures if needed.
