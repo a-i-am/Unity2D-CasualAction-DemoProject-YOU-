@@ -34,7 +34,7 @@ public class ChatNetworkManager : Singleton<ChatNetworkManager>
                 if (bytesRead > 0)
                 {
                     string receivedMessage = Encoding.UTF8.GetString(readBuffer, 0, bytesRead);
-                    //PrintChatData(ChatType.Normal, Color.white, receivedMessage);
+
                 }
             }
         }

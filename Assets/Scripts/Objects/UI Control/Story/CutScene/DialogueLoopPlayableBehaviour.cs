@@ -18,7 +18,7 @@ public class DialogueLoopPlayableBehaviour : PlayableBehaviour
             {
                 case CutscenePauseMethod.Loop:
                     var start = 0f;
-                    var end = (float)playable.GetDuration();  // end를 playable의 duration 값으로 설정
+                    var end = (float)playable.GetDuration();
                     Debug.Log($"Looping from start: {start} to end: {end}");
 
                     if (Cutscene.ActiveCutscene != null)
@@ -49,7 +49,7 @@ public class DialogueLoopPlayableBehaviour : PlayableBehaviour
                     break;
             }
 
-            firstFrame = false;  // 첫 프레임이 실행된 후에는 false로 설정
+            firstFrame = false;
         }
     }
 }

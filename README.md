@@ -1,27 +1,53 @@
-# [Unity 2D] CasualAction DemoProject : YOU
+# YOU
 
-플레이 영상 : https://youtu.be/DXausfETae0?si=pR9YFLdsrxy2ShNM
+[플레이 영상](https://youtu.be/DXausfETae0) | [프로젝트 PDF](docs/You_.pdf)
 
-게임 소개
-:
-개발 목적 : 유니티 엔진 학습
+적을 기절시켜 수집한 뒤, 아군 팔로워(Follower)로 소환하여 전투에 활용하는 2D 캐주얼 액션 데모입니다.
 
-:: 사용 기술 ::
-- 엔진 : Unity2D
-- 인벤토리 : JSON
---------------------------------------------------------------------------------------
-[첨부 이미지 원본 파일]
-[You_설명 문서.pdf](https://github.com/user-attachments/files/25697139/You_.pdf)
+README 업데이트: 2026-07-01
 
-[프로젝트 설명 자료]
-<img width="1701" height="945" alt="슬라이드1" src="https://github.com/user-attachments/assets/74731523-c89f-4a41-b0d1-33cb673ecadf" />
-<img width="1701" height="945" alt="슬라이드2" src="https://github.com/user-attachments/assets/99d985fb-cc23-4fb1-beb9-aa0300cc8bad" />
-<img width="1701" height="945" alt="슬라이드3" src="https://github.com/user-attachments/assets/6120db62-a651-44b2-9aff-7c107cf6a11f" />
-<img width="1701" height="945" alt="슬라이드4" src="https://github.com/user-attachments/assets/03ac2e21-2837-4bac-92cb-7ec1c6827fed" />
-<img width="1701" height="945" alt="슬라이드5" src="https://github.com/user-attachments/assets/0f726d0c-369f-4b83-a028-05738f5dcdba" />
-<img width="1701" height="945" alt="슬라이드6" src="https://github.com/user-attachments/assets/8815a866-5693-4996-83a5-895a3c7ed8f0" />
-<img width="1701" height="945" alt="슬라이드7" src="https://github.com/user-attachments/assets/61cee6cf-eb82-46c1-9ef6-2cd8cd55dd36" />
-<img width="1701" height="945" alt="슬라이드8" src="https://github.com/user-attachments/assets/8eabe473-2f73-4fee-809b-fb267babaaca" />
-<img width="1701" height="945" alt="슬라이드9" src="https://github.com/user-attachments/assets/775091e8-aeed-47eb-9fca-73b6462ed871" />
-<img width="1701" height="945" alt="슬라이드10" src="https://github.com/user-attachments/assets/fcd976d2-c0b7-449e-97ce-38e1fd0f4b18" />
+> 📷 **영상 및 이미지**
+> *(여기에 영상 또는 이미지 추가 예정)*
 
+### 프로젝트 정보
+
+| 항목 | 내용 |
+| --- | --- |
+| 개발 기간 | 2024-08 - 2024-10 |
+| 리팩터링 이력 | 1차: 2026-05-22 - 2026-06-01 |
+| 인원 | 1인 |
+| 엔진 | Unity 2022.3.28f1 |
+| 플랫폼 | Windows |
+
+### 기술 스택
+<p>
+  <img src="https://img.shields.io/badge/Unity-000000?style=flat-square&logo=unity&logoColor=white"/>
+  <img src="https://img.shields.io/badge/C%23-239120?style=flat-square&logo=c-sharp&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Cinemachine-000000?style=flat-square"/>
+  <img src="https://img.shields.io/badge/DOTween-000000?style=flat-square"/>
+  <img src="https://img.shields.io/badge/URP-000000?style=flat-square"/>
+</p>
+
+### 서드파티 플러그인 연동
+- DOTween 플러그인을 활용한 UI 및 컷신 트윈 연출 구현
+
+### 프로젝트 구조
+```text
+(프로젝트 구조도 추가 예정)
+```
+
+### 플레이 및 조작 방법
+*(캐릭터 이동 및 공격, 적 포획 및 팔로워 소환/해제 버튼 안내 작성 예정)*
+
+### 핵심 구현
+
+- 기절한 적 수집, 인벤토리 등록, 팔로워 소환으로 이어지는 게임 흐름
+- 다중 팔로워 간 거리 기반 고유 타겟팅 (중복 선택 방지)
+- 팔로워 대시 공격 및 기존 위치 복귀 로직
+- 아이템 원본 데이터와 슬롯별 생성 인스턴스를 분리한 인벤토리 리팩터링
+- Cinemachine 기반 카메라 워크 및 보스 패턴 연출
+
+### 업데이트 계획
+
+- 팔로워 AI 또는 컷신 캡처 추가 검토
+- 사용한 에셋 출처 표기 예정

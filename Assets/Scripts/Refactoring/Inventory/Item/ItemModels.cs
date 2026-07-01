@@ -11,7 +11,7 @@ public class EffectData
 }
 
 [Serializable]
-public class ItemMasterData 
+public class ItemMasterData
 {
     public int itemID;
     public string type;
@@ -30,8 +30,8 @@ public class ItemMasterData
 public class ItemInstance
 {
     public ItemMasterData masterData { get; private set; }
-    public int count;                                     
-    public int durability;                            
+    public int count;
+    public int durability;
 
     public ItemInstance(ItemMasterData master, int amount)
     {

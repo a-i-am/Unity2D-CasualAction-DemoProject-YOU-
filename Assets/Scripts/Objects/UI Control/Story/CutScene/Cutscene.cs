@@ -28,7 +28,7 @@ public class Cutscene : MonoBehaviour
         public string title;
     }
 
-    // UltEvent
+
     public UltEvent<Cutscene> OnStart;
     public UltEvent<Cutscene> OnStop;
     public UltEvent<Cutscene> OnComplete;
@@ -45,7 +45,7 @@ public class Cutscene : MonoBehaviour
     private bool isDialogue = false;
     private int count = 0;
 
-    // 컷신-타임라인 루프 연결
+
     public static Cutscene ActiveCutscene;
     public List<CutscenePart> cutsceneParts = new List<CutscenePart>();
     Tuple<float, float> loop;
@@ -57,9 +57,9 @@ public class Cutscene : MonoBehaviour
     {
         OnOff(false);
 
-        // pause
+
         GetComponent<PlayableDirector>().playableGraph.GetRootPlayable(0).SetSpeed(0);
-        // play
+
         GetComponent<PlayableDirector>().playableGraph.GetRootPlayable(0).SetSpeed(1);
     }
     public virtual void Awake()
@@ -72,7 +72,7 @@ public class Cutscene : MonoBehaviour
         {
             if (dir == playableDir)
             {
-                //ActiveCutscene = this;
+
                 Debug.Log("PlayableDirector 재생됨: ActiveCutscene 할당 완료");
             }
         };
@@ -85,10 +85,10 @@ public class Cutscene : MonoBehaviour
             }
         };
 
-        // PlayableGraph의 상태를 확인
+
         if (!playableDir.playableGraph.IsValid() || !playableDir.playableGraph.IsPlaying())
         {
-            playableDir.Play(); // PlayableDirector를 재생하여 ActiveCutscene 설정
+            playableDir.Play();
         }
     }
 
@@ -158,7 +158,7 @@ public class Cutscene : MonoBehaviour
             }
             else
             {
-                OnOff(false);  // 대화가 끝났을 때
+                OnOff(false);
             }
         }
 
@@ -178,7 +178,7 @@ public class Cutscene : MonoBehaviour
             image_ActorIcon.gameObject.SetActive(false);
             image_IconBack.gameObject.SetActive(false);
         }
-        // actorIcon이 null인 경우와 아닌 경우에 따라 활성화/비활성화 처리
+
         if (dialougeArea[count].actorIcon != null)
         {
             image_ActorIcon.sprite = dialougeArea[count].actorIcon;
@@ -206,7 +206,7 @@ public class Cutscene : MonoBehaviour
 
 
 
-    // 타임라인에서 가장 가까운 애니메이션 클립으로 이동해서 이어서 재생
+
     public void ResumeFromClosestClip()
     {
         isResumeClip = true;
@@ -214,12 +214,12 @@ public class Cutscene : MonoBehaviour
         TimelineClip closestClip = null;
         double closestStartTime = double.MaxValue;
 
-        // 타임라인에 있는 트랙을 순회하며 가장 가까운 애니메이션 클립을 찾음
+
         foreach (var track in timeline.GetOutputTracks())
         {
             foreach (TimelineClip clip in track.GetClips())
             {
-                // 현재 시간보다 뒤에 있는 클립 중 가장 가까운 것을 찾음
+
                 if (clip.start > currentTime && clip.start < closestStartTime)
                 {
                     closestClip = clip;
@@ -231,8 +231,8 @@ public class Cutscene : MonoBehaviour
         if (closestClip != null)
         {
             Debug.Log($"Resuming from closest clip at time {closestClip.start}");
-            playableDir.time = closestClip.start; // 가장 가까운 클립의 시작점으로 타임라인 시간을 설정
-            playableDir.Play(); // 타임라인 재생
+            playableDir.time = closestClip.start;
+            playableDir.Play();
         }
         else
         {
@@ -248,7 +248,7 @@ public class Cutscene : MonoBehaviour
 
 
 
-    // 타임라인 관련 메서드들
+
     public void Pause()
     {
         playableDir.playableGraph.GetRootPlayable(0).SetSpeed(0);

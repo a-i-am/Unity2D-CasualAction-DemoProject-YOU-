@@ -29,10 +29,10 @@ public class Client : MonoBehaviour
         }
     }
 
-    // 스타트 함수는 업데이트 바로 전 프레임에 호출
+
     private void Start()
     {
-        tcp = new TCP();        
+        tcp = new TCP();
     }
 
     public void ConnectToServer()
@@ -80,24 +80,24 @@ public class Client : MonoBehaviour
                 int _byteLength = stream.EndRead(_result);
                 if(_byteLength <= 0)
                 {
-                    // TODO : disconnect
+
                     return;
                 }
 
                 byte[] _data = new byte[_byteLength];
                 Array.Copy(receiveBuffer, _data, _byteLength);
 
-                // TODO : handle data
+
                 stream.BeginRead(receiveBuffer, 0, dataBufferSize, ReceiveCallback, null);
             }
             catch
             {
-                // TODO : disconnect
+
             }
 
 
         }
     }
 
-    
-} 
+
+}

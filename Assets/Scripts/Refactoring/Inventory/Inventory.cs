@@ -9,7 +9,7 @@ public class Inventory : Singleton<Inventory>
         Items.SlotCount = 20;
         Characters.SlotCount = 50;
     }
-    
+
     private void OnTriggerStay2D(Collider2D collision)
     {
         if (collision.CompareTag("FieldItem"))

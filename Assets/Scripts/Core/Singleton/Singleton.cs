@@ -12,14 +12,14 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         get
         {
-            // 고스트 객체 생성 방지용
-            // leak 방지
+
+
             if (_isApplicationQuit)
             {
                 return null;
             }
 
-            // thread-safe
+
             lock (_lock)
             {
                 if (_instance == null)
@@ -46,7 +46,7 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         _isApplicationQuit = true;
     }
 
-    // 객체가 파괴될 때 호출
+
     public virtual void OnDestroy()
     {
         _isApplicationQuit = true;

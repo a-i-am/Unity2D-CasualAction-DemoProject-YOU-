@@ -6,7 +6,7 @@ using UnityEngine;
 [InitializeOnLoad]
 public static class RuntimeCounter
 {
-    private const string RunCountKey = "MyGame_EditorRunCount"; // 원하는 이름으로 바꿔도 됨
+    private const string RunCountKey = "MyGame_EditorRunCount";
     static RuntimeCounter()
     {
         EditorApplication.playModeStateChanged += OnPlayModeChanged;

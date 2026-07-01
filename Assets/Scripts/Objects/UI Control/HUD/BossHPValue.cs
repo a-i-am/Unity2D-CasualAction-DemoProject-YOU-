@@ -7,7 +7,7 @@ using UnityEngine;
 public class BossHPValue
 {
     [SerializeField] private BossUI bossHP;
-    
+
     [SerializeField] private float bossMaxVal;
     [SerializeField] private float bossCurrentVal;
 

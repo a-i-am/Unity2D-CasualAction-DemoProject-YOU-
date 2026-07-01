@@ -8,7 +8,7 @@ public class SceneController : Singleton<SceneController>
 {
     [SerializeField] Animator transitionAnim;
 
-    // 씬 전환(포탈로 맵 이동)
+
     public void NextLevel()
     {
         StartCoroutine(LoadLevel());

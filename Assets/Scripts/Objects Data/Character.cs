@@ -8,9 +8,9 @@ using UnityEngine.UI;
 public class Character
 {
     [System.Serializable]
-    public class CharacterData 
+    public class CharacterData
     {
-        public string tabName, type, name, explain, number; // string이어야 JSON 파싱 시 잘 된다고 함
+        public string tabName, type, name, explain, number;
         public bool isUsing;
         public int slotIndex;
         [JsonIgnore] public Sprite characterImage;
@@ -53,11 +53,7 @@ public class Character
             characterPrefab = null;
 
             if (efts != null)
-                efts.Clear();  // 효과 리스트는 비우기만 (필요시 null 대입도 가능)
+                efts.Clear();
         }
     }
 }
-    //public void Initialize(Character.CharacterData data)
-    //{
-    //    characterData = data;
-    //}

@@ -4,6 +4,6 @@ using UnityEngine;
 
 public class MaxCountData
 {
-    // 인벤토리
+
     public int MaxFollowerSlotCount { get; set; }
 }
