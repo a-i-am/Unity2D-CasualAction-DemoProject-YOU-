@@ -1,6 +1,6 @@
 # YOU
 
-[플레이 영상](https://youtu.be/DXausfETae0) | [프로젝트 PDF](docs/You_.pdf)
+[플레이 영상](https://youtu.be/DXausfETae0) | [프로젝트 PDF](Docs/You_.pdf)
 
 적을 기절시켜 수집한 뒤, 아군 팔로워(Follower)로 소환하여 전투에 활용하는 2D 캐주얼 액션 데모입니다.
 
