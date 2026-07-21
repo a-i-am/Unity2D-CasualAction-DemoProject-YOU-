@@ -1,16 +1,10 @@
-using Assets;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.TextCore.Text;
-using static Inventory;
+
 public class Inventory : Singleton<Inventory>
 {
     [Header("외부 참조")]
     [HideInInspector] public InventoryUI invenUI;
-    private PlayerScr playerScr;
     private Enemy enemy;
 
     // Enum State
@@ -47,7 +41,7 @@ public class Inventory : Singleton<Inventory>
         set
         {
             characterSlotCnt = value;
-            onCharacterSlotCountChange.Invoke(characterSlotCnt);
+            onCharacterSlotCountChange?.Invoke(characterSlotCnt);
         }
     }
     public int ItemSlotCnt
@@ -56,18 +50,8 @@ public class Inventory : Singleton<Inventory>
         set
         {
             itemSlotCnt = value;
-            onItemSlotCountChange.Invoke(itemSlotCnt);
+            onItemSlotCountChange?.Invoke(itemSlotCnt);
         }
-    }
-
-    // 팔로워 로직
-    private bool isNotHaveFollower;
-
-
-
-    private void Awake()
-    {
-        playerScr = GetComponent<PlayerScr>();
     }
 
     void Start()
@@ -84,36 +68,48 @@ public class Inventory : Singleton<Inventory>
 
     public bool AddCharacter(Character.CharacterData _character)
     {
-        if (onChangeCharacter != null && characters.Count < CharacterSlotCnt)
-        {
-            characters.Add(_character);
-            acquiredCharacters++;
-            onChangeCharacter?.Invoke();
-            return true;
-        }
-        else return false;
+        if (_character == null || characters.Count >= CharacterSlotCnt) return false;
+        Character.CharacterData character = _character.CreateInstance();
+        character.slotIndex = FindAvailableCharacterSlot(character.type);
+        if (character.slotIndex < 0) return false;
+        characters.Add(character);
+        acquiredCharacters++;
+        onChangeCharacter?.Invoke();
+        return true;
     }
 
     public bool AddItem(Item.ItemData _item)
     {
-        if (onChangeItem != null && items.Count < ItemSlotCnt)
-        {
-            items.Add(_item);
-            acquiredItems++;
-            
-            onChangeItem.Invoke();
-            
-            return true;
-        }
-        else return false;
+        if (_item == null || items.Count >= ItemSlotCnt) return false;
+        Item.ItemData item = _item.CreateInstance();
+        item.slotIndex = FindAvailableItemSlot(item.type);
+        if (item.slotIndex < 0) return false;
+        items.Add(item);
+        acquiredItems++;
+        onChangeItem?.Invoke();
+        return true;
+    }
+
+    private int FindAvailableCharacterSlot(string type)
+    {
+        for (int i = 0; i < CharacterSlotCnt; i++)
+            if (!characters.Exists(character => character.type == type && character.slotIndex == i)) return i;
+        return -1;
+    }
+
+    private int FindAvailableItemSlot(string type)
+    {
+        for (int i = 0; i < ItemSlotCnt; i++)
+            if (!items.Exists(item => item.type == type && item.slotIndex == i)) return i;
+        return -1;
     }
 
     public void RemoveItem(int _index)
     {
+        if (_index < 0 || _index >= items.Count) return;
         items.RemoveAt(_index);
         acquiredItems--;
-        
-        onChangeItem.Invoke();
+        onChangeItem?.Invoke();
     }
 
     public void RemoveCharacter(int _index)
@@ -122,7 +118,7 @@ public class Inventory : Singleton<Inventory>
         {
             characters.RemoveAt(_index);
             acquiredCharacters--;
-            //onChangeCharacter.Invoke();
+            onChangeCharacter?.Invoke();
             Debug.Log("Inventory.cs - RemoveCharacter");
         }
         else return;
@@ -130,14 +126,7 @@ public class Inventory : Singleton<Inventory>
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.CompareTag("FieldItem"))
-        {
-            FieldItems fieldItems = collision.GetComponent<FieldItems>();
-            if (AddItem(fieldItems.GetItem()))
-            {
-                fieldItems.DestroyItem();
-            }
-        }
+        InventoryPickupCollector.TryCollect(this, collision);
     }
     private void DetectMob()
     {

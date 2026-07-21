@@ -1,12 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using Assets;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using static Inventory;
-using System.Reflection;
-using UnityEngine.TextCore.Text;
 
 public class InventoryUI : MonoBehaviour
 {
@@ -17,6 +14,7 @@ public class InventoryUI : MonoBehaviour
     [Header("패널")]
     [SerializeField] private GameObject playerUI;
     [SerializeField] private GameObject inventoryPanel;
+    private PlayerHPValue itemTargetHealth;
     [Header("텍스트")]
     [SerializeField] private TextMeshProUGUI itemSlotNumText;
     [SerializeField] private TextMeshProUGUI characterSlotNumText;
@@ -32,16 +30,23 @@ public class InventoryUI : MonoBehaviour
 
     // 인벤토리 ON/OFF
     private bool activeInventory = false;
+    private ItemUseContext itemUseContext;
+
+    public PlayerHPValue ItemTargetHealth => itemTargetHealth;
+    public ItemUseContext ItemUseContext => itemUseContext;
 
     private void Awake()
     {
-        itemSlots = itemSlotHolder.GetComponentsInChildren<ItemSlot>();
-        characterSlots = characterSlotHolder.GetComponentsInChildren<CharacterSlot>();
+        itemSlots = itemSlotHolder.GetComponentsInChildren<ItemSlot>(true);
+        characterSlots = characterSlotHolder.GetComponentsInChildren<CharacterSlot>(true);
     }
     private void Start()
     {
         inven = Inventory.Instance;
         invenDB = InventoryDatabase.Instance;
+        PlayerScr player = FindObjectOfType<PlayerScr>(true);
+        if (itemTargetHealth == null && player != null) itemTargetHealth = player.health;
+        SetItemTarget(itemTargetHealth);
 
         inven.onItemSlotCountChange += ItemSlotChange;
         inven.onCharacterSlotCountChange += CharacterSlotChange;
@@ -54,39 +59,52 @@ public class InventoryUI : MonoBehaviour
 
         inventoryPanel.SetActive(activeInventory);
 
-        //itemSlotNumText.text = string.Format("{0} / {1}", inven.acquiredItems, itemSlots.Length);
-        itemSlotNumText.text = string.Format("{0} / {1}", inven.acquiredItems, inven.ItemSlotCnt);
-
-        //characterSlotNumText.text = string.Format("{0} / {1}", inven.acquiredCharacters, characterSlots.Length);
-        characterSlotNumText.text = string.Format("{0} / {1}", inven.acquiredCharacters, inven.CharacterSlotCnt);
-
+        ItemSlotChange(inven.ItemSlotCnt);
+        CharacterSlotChange(inven.CharacterSlotCnt);
+        RedrawItemSlotUI();
+        RedrawAllCharacterSlotsUI();
+        UpdateSlotCountTexts();
     }
 
     void FixedUpdate()
     {
-        ////itemSlotNumText.text = string.Format("{0} / {1}", inven.acquiredItems, itemSlots.Length);
+        UpdateSlotCountTexts();
+    }
 
-        ////characterSlotNumText.text = string.Format("{0} / {1}", inven.acquiredCharacters, characterSlots.Length);
+    private void UpdateSlotCountTexts()
+    {
         characterSlotNumText.text = string.Format("{0} / {1}", inven.acquiredCharacters, inven.CharacterSlotCnt);
         itemSlotNumText.text = string.Format("{0} / {1}", inven.acquiredItems, inven.ItemSlotCnt);
     }
 
+    private void SetSlotButtons<TSlot>(TSlot[] slots, int slotCount, Action<TSlot, int> setIndex) where TSlot : MonoBehaviour
+    {
+        for (int i = 0; i < slots.Length; i++)
+        {
+            setIndex(slots[i], i);
+            Button button = slots[i].GetComponent<Button>();
+            if (button != null) button.interactable = i < slotCount;
+        }
+    }
+
+    public void SetItemTarget(PlayerHPValue target)
+    {
+        itemTargetHealth = target;
+        itemUseContext = new ItemUseContext(itemTargetHealth, inven, transform);
+        if (itemSlots == null) return;
+        for (int i = 0; i < itemSlots.Length; i++)
+        {
+            itemSlots[i].SetUseContext(itemUseContext);
+        }
+    }
 
     #region 아이템 인벤토리 UI
-    
+
     public void RemoveItemSlotAt(int index)
     {
-        if (index >= 0 && index < characterSlots.Length)
-        {
-            itemSlots[index].RemoveItemSlot();
-        }
-
-        if (index >= 0 && index < filteredItemList.Count)
-        {
-            var itemSlotToRemove = filteredItemList[index];
-            inven.items.Remove(itemSlotToRemove);
-            RedrawItemSlotUI();
-        }
+        int itemIndex = inven.items.FindIndex(item =>
+            item.type == invenDB.itemCurSubType && item.slotIndex == index);
+        if (itemIndex >= 0) inven.RemoveItem(itemIndex);
     }
 
     public void RedrawItemSlotUI()
@@ -94,29 +112,26 @@ public class InventoryUI : MonoBehaviour
         // 이전 슬롯 필터링 데이터 초기화
         for (int i = 0; i < itemSlots.Length; i++)
         {
+            itemSlots[i].gameObject.SetActive(i < inven.ItemSlotCnt);
             itemSlots[i].RemoveItemSlot();
         }
 
         // 슬롯 데이터 필터링
         filteredItemList = inven.items.FindAll(item => item.type == invenDB.itemCurSubType);
-        for (int i = 0; i < filteredItemList.Count && i < itemSlots.Length; i++)
+        for (int i = 0; i < filteredItemList.Count; i++)
         {
-            itemSlots[i].itemData = filteredItemList[i];
-            itemSlots[i].UpdateItemSlotUI();
+            int slotIndex = filteredItemList[i].slotIndex;
+            if (slotIndex < 0 || slotIndex >= itemSlots.Length) continue;
+            itemSlots[slotIndex].gameObject.SetActive(true);
+            itemSlots[slotIndex].itemData = filteredItemList[i];
+            itemSlots[slotIndex].SetUseContext(itemUseContext);
+            itemSlots[slotIndex].UpdateItemSlotUI();
         }
     }
 
     private void ItemSlotChange(int val)
     {
-        for (int i = 0; i < itemSlots.Length; i++)
-        {
-            itemSlots[i].itemSlotnum = i;
-
-            if (i < inven.ItemSlotCnt)
-                itemSlots[i].GetComponent<Button>().interactable = true;
-            else
-                itemSlots[i].GetComponent<Button>().interactable = false;
-        }
+        SetSlotButtons(itemSlots, inven.ItemSlotCnt, (slot, i) => slot.itemSlotnum = i);
     }
 
     #endregion
@@ -124,44 +139,35 @@ public class InventoryUI : MonoBehaviour
     #region 캐릭터 인벤토리 UI
     private void CharacterSlotChange(int val)
     {
-        for (int i = 0; i < characterSlots.Length; i++)
-        {
-            characterSlots[i].characterSlotnum = i;
-
-            if (i < inven.CharacterSlotCnt)
-                characterSlots[i].GetComponent<Button>().interactable = true;
-            else
-                characterSlots[i].GetComponent<Button>().interactable = false;
-        }
+        SetSlotButtons(characterSlots, inven.CharacterSlotCnt, (slot, i) => slot.characterSlotnum = i);
     }
 
     public void RedrawAllCharacterSlotsUI()
     {
         for (int i = 0; i < characterSlots.Length; i++)
         {
+            characterSlots[i].gameObject.SetActive(i < inven.CharacterSlotCnt);
             characterSlots[i].RemoveCharacterSlot();
         }
 
         filteredCharacterList = inven.characters.FindAll(character => character.type == invenDB.characterCurSubType);
 
-        for (int i = 0; i < filteredCharacterList.Count && i < characterSlots.Length; i++)
+        for (int i = 0; i < filteredCharacterList.Count; i++)
         {
-            characterSlots[i].characterData = filteredCharacterList[i];
-            characterSlots[i].UpdateCharacterSlotUI();
+            int slotIndex = filteredCharacterList[i].slotIndex;
+            if (slotIndex < 0 || slotIndex >= characterSlots.Length) continue;
+            characterSlots[slotIndex].gameObject.SetActive(true);
+            characterSlots[slotIndex].characterData = filteredCharacterList[i];
+            characterSlots[slotIndex].UpdateCharacterSlotUI();
         }
     }
 
     // 특정 슬롯만 비움
     public void RemoveCharacterSlotAt(int index)
     {
-        if (index >= 0 && index < filteredCharacterList.Count)
-        {
-            var characterToRemove = filteredCharacterList[index];
-            inven.characters.Remove(characterToRemove);
-            RedrawAllCharacterSlotsUI();
-            //characterSlots[index].characterData = filteredCharacterList[index];
-            //characterSlots[index].RemoveCharacterSlot();
-        }
+        int characterIndex = inven.characters.FindIndex(character =>
+            character.type == invenDB.characterCurSubType && character.slotIndex == index);
+        if (characterIndex >= 0) inven.RemoveCharacter(characterIndex);
     }
 
     #endregion

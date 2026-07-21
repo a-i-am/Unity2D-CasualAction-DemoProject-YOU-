@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst.CompilerServices;
 using UnityEngine;
-using static UnityEditor.Searcher.SearcherWindow.Alignment;
-using static UnityEditor.ShaderGraph.Internal.Texture2DShaderProperty;
 using static UnityEngine.EventSystems.EventTrigger;
 using static UnityEngine.Mesh;
 #region 플레이어 로직 요약
@@ -218,4 +216,3 @@ public class PlayerController : Singleton<PlayerController>
 
     }
 }
-

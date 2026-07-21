@@ -25,7 +25,8 @@ public class PlayerHPValue
         set
         {
             this.playerCurrentVal = Mathf.Clamp(value, 0, playerMaxVal);
-            playerHP.PlayerValue = playerCurrentVal;
+            EnsurePlayerHP();
+            if (playerHP != null) playerHP.PlayerValue = playerCurrentVal;
         }
 
     }
@@ -39,7 +40,8 @@ public class PlayerHPValue
         set
         {
             this.playerMaxVal = value;
-            playerHP.PlayerMaxValue = playerMaxVal;
+            EnsurePlayerHP();
+            if (playerHP != null) playerHP.PlayerMaxValue = playerMaxVal;
         }
     }
 
@@ -47,6 +49,11 @@ public class PlayerHPValue
     {
         this.PlayerMaxVal = playerMaxVal;
         this.PlayerCurrentVal = playerCurrentVal;
+    }
+
+    private void EnsurePlayerHP()
+    {
+        if (playerHP == null) playerHP = UnityEngine.Object.FindObjectOfType<UI>(true);
     }
 
     #endregion

@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 using System.IO;
 using UnityEngine.UI;
 using System.Linq;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 public class InventoryDatabase : Singleton<InventoryDatabase>
 {
@@ -15,8 +14,6 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
     private List<Character.CharacterData> myCharacterList = new List<Character.CharacterData>();
     private List<Item.ItemData> myItemList = new List<Item.ItemData>();
 
-    // 외부 클래스 참조
-    private Inventory inven;
     // 델리게이트
     public delegate void OnCharacterSubTab();
     public delegate void OnItemSubTab();
@@ -24,7 +21,6 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
     public OnItemSubTab onItemSubTab;
 
     [Header("슬롯")]
-    [SerializeField] private GameObject[] InvenSlot; // 일단 슬롯 개수는 캐릭터 & 아이템 동기화
     [SerializeField] private GameObject characterInvenSlotUI;
     [SerializeField] private GameObject itemInvenSlotUI;
     [SerializeField] private GameObject characterSlotNumText;
@@ -46,9 +42,7 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
 
     [Header("캐릭터/아이템 DB")]
     public List<Item.ItemData> allItemList = new List<Item.ItemData>();
-    [SerializeField] private List<Item.ItemData> curItemList = new List<Item.ItemData>();
     [SerializeField] private List<Character.CharacterData> allCharacterList = new List<Character.CharacterData>();
-    [SerializeField] private List<Character.CharacterData> curCharacterList = new List<Character.CharacterData>();
     //[SerializeField] private List<ItemInfo> itemInfos = new List<ItemInfo>();
 
     [Header("필드 아이템 배치")]
@@ -57,8 +51,6 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
 
     void Start()
     {
-        inven = Inventory.Instance;
-        
         // Start Parse DB Data  // JSON txt DB 직렬화-역직렬화
             SerializeCharactersDB();
             SerializeItemsDB();
@@ -72,8 +64,7 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
         // Start Sync UI Data
         MainTabClick(curMainTabType);
 
-        // Start Ready On Field Data
-        InstantiateFieldItems();
+        SpawnInitialFieldItems();
     }
 
     #region  Parse DB Data
@@ -113,6 +104,7 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
         for (int i = 0; i < characterLine.Length; i++)
         {
             string[] row = characterLine[i].Split('\t');
+            for (int j = 0; j < row.Length; j++) row[j] = row[j].Trim();
             Sprite characterImage = Resources.Load<Sprite>(row[5]); // 캐릭터 이미지 경로에서 스프라이트 로드
             Follower characterPrefab = Resources.Load<Follower>(row[6]); // 캐릭터 프리팹 경로에서 로드
 
@@ -139,6 +131,7 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
         for (int i = 0; i < itemLines.Length; i++)
         {
             string[] row = itemLines[i].Split('\t');
+            for (int j = 0; j < row.Length; j++) row[j] = row[j].Trim();
             string fullPath = row[5];
             string spritePath = fullPath.Substring(0, fullPath.LastIndexOf('/')).Replace("Assets/Resources/", "");
             string spriteName = fullPath.Substring(fullPath.LastIndexOf('/') + 1);
@@ -168,30 +161,9 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
     #endregion
 
     #region Get Ready ON Data 
-    private void ActiveCharactersList(string subTabName)
-    {
-        curCharacterList = inven.characters.FindAll(x => x.type == subTabName);
-        //Debug.Log($"curCharacterList 개수: {curCharacterList.Count} characters 개수 {inven.characters.Count} ");
-
-        // Character 리스트 슬롯과 텍스트 보이기
-        for (int i_Character = 0; i_Character < InvenSlot.Length; i_Character++)
-        {
-            InvenSlot[i_Character].SetActive(i_Character < curCharacterList.Count);
-        }
-    }
-    private void ActiveItemsList(string subTabName)
-    {
-        curItemList = inven.items.FindAll(x => x.type == subTabName);
-
-        // Item 리스트 슬롯과 텍스트 보이기
-        for (int i_item = 0; i_item < InvenSlot.Length; i_item++)
-        {
-            InvenSlot[i_item].SetActive(i_item < curItemList.Count);
-        }
-    }
     private void SetItemEffect(Item.ItemData itemData)
     {
-        switch (itemData.tabName)
+        switch (itemData.tabName?.Trim())
         {
             case "Absorption":
                 // 회복 아이템이면, HealingEffect 스크립터블 오브젝트를 찾아서 연결
@@ -213,17 +185,14 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
                 break;
         }
     }
+    public void SpawnInitialFieldItems()
+    {
+        InstantiateFieldItems();
+    }
+
     private void InstantiateFieldItems()
     {
-        // 필드에 아이템 리스트 중 랜덤 생성
-        for (int i = 0; i < pos.Length; i++) // 생성할 아이템 개수만큼 반복 // 인스펙터에 Pos 개수 및 생성 위치 작성 필요
-        {
-            if (allItemList.Count > 0)
-            {
-                GameObject go = Instantiate(fieldItemPrefab, pos[i], Quaternion.identity);
-                go.GetComponent<FieldItems>().SetItem(allItemList[Random.Range(0, allItemList.Count)]);
-            }
-        }
+        FieldItemSpawner.Spawn(fieldItemPrefab, pos, allItemList);
     }
 
     #endregion
@@ -280,7 +249,6 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
     public void CharacterSubTabClick(string tabName)
     {
         characterCurSubType = tabName;
-        ActiveCharactersList(characterCurSubType);
         onCharacterSubTab?.Invoke();
 
         int tabNum = 0;
@@ -304,7 +272,6 @@ public class InventoryDatabase : Singleton<InventoryDatabase>
     public void ItemSubTabClick(string tabName)
     {
         itemCurSubType = tabName;
-        ActiveItemsList(itemCurSubType);
         onItemSubTab?.Invoke();
 
         int tabNum = 0;

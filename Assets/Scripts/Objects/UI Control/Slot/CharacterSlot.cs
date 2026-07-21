@@ -1,6 +1,4 @@
 using Assets;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -14,7 +12,6 @@ public class CharacterSlot : MonoBehaviour
 
     [Header("외부 참조")]
     private Pointable pointable;
-    private Inventory inven;
     private InventoryUI invenUI;
     [SerializeField] private FollowerSpawner followerSpawner;
     [SerializeField] private Transform player;
@@ -27,7 +24,6 @@ public class CharacterSlot : MonoBehaviour
     //private int lastSpawnedIndex = 0; // 마지막으로 Spawn()이 호출된 오브젝트의 번호를 저장
     private void Awake()
     {
-        inven = Inventory.Instance;
         invenUI = transform.root.GetComponent<InventoryUI>();
         pointable = GetComponent<Pointable>();
         if (pointable != null)
@@ -47,7 +43,6 @@ public class CharacterSlot : MonoBehaviour
         if (characterData == null) return;
         
             followerSpawner.SpawnFollower(characterData);
-            inven.RemoveCharacter(characterSlotnum);
             invenUI.RemoveCharacterSlotAt(characterSlotnum);
         // onChangeCharacter.Invoke(); // 이벤트 방식
         /*
@@ -68,11 +63,8 @@ public class CharacterSlot : MonoBehaviour
 
     public void RemoveCharacterSlot()
     {
-        if (characterData != null)
-        {
-            characterData = null;
-            characterIcon.gameObject.SetActive(false);
-        }
+        characterData = null;
+        characterIcon.gameObject.SetActive(false);
     }
 
 

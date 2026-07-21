@@ -1,6 +1,4 @@
-using Assets;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ItemSlot : MonoBehaviour
@@ -10,12 +8,10 @@ public class ItemSlot : MonoBehaviour
     public Image itemIcon;
     public Item.ItemData itemData;
 
-    private PlayerScr player;
-
     [Header("외부 참조")]
     private Pointable pointable;
     private InventoryUI inventoryUI;
-    private PlayerHPValue health;
+    private ItemUseContext useContext;
 
     private void Awake()
     {
@@ -29,7 +25,12 @@ public class ItemSlot : MonoBehaviour
     }
     private void Start()
     {
-        health = PlayerScr.Instance.health;
+        if (inventoryUI != null) SetUseContext(inventoryUI.ItemUseContext);
+    }
+
+    public void SetUseContext(ItemUseContext context)
+    {
+        useContext = context;
     }
 
     public void OnPointerUp()
@@ -43,14 +44,14 @@ public class ItemSlot : MonoBehaviour
         // 슬롯 클릭 트리거
         if (itemData == null) return;
 
-        bool isUse = itemData.UseItem(health);
+        if (useContext == null) return;
+
+        bool isUse = itemData.UseItem(useContext);
         
 
         if (isUse && inventoryUI != null)
         {
             inventoryUI.RemoveItemSlotAt(itemSlotnum);
-            //Inventory.Instance.RemoveItem(itemSlotnum);
-            //Inventory.Instance.acquiredItems--;
         }
     }
 
@@ -66,13 +67,7 @@ public class ItemSlot : MonoBehaviour
 
     public void RemoveItemSlot()
     {
-        if (itemData != null)
-        {
-            itemData = null;
-            itemIcon.gameObject.SetActive(false);
-        }
+        itemData = null;
+        itemIcon.gameObject.SetActive(false);
     }
-
-
 }
-

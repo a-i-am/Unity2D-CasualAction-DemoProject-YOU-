@@ -1,7 +1,12 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-public class FieldItems : MonoBehaviour
+public interface IInventoryPickup
+{
+    Item.ItemData GetItem();
+    void DestroyItem();
+}
+
+public class FieldItems : MonoBehaviour, IInventoryPickup
 {
     public Item.ItemData field_item;
     public SpriteRenderer image;
@@ -21,14 +26,4 @@ public class FieldItems : MonoBehaviour
     {
         Destroy(gameObject);
     }
-
-    //public void SetRandomItem()
-    //{
-    //    List<Item.ItemData> itemDB = InventoryDatabase.Instance.allItemList;
-    //    if (itemDB.Count > 0)
-    //    {
-    //        SetItem(itemDB[UnityEngine.Random.Range(0, itemDB.Count)]);
-    //    }
-    //}
 }
-

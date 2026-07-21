@@ -1,9 +1,6 @@
 using Newtonsoft.Json;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Item
 {
@@ -12,6 +9,7 @@ public class Item
     {
         public string tabName, type, name, explain, number; // string이어야 JSON 파싱 시 잘 된다고 함
         public bool isUsing;
+        public int slotIndex = -1;
         [JsonIgnore]
         public Sprite itemImage;
         [JsonIgnore]
@@ -28,39 +26,23 @@ public class Item
             isUsing = _isUsing;
         }
 
-        public bool UseItem(PlayerHPValue playerHP)
+        public ItemData CreateInstance()
+        {
+            ItemData instance = (ItemData)MemberwiseClone();
+            instance.efts = efts == null ? new List<ItemEffect>() : new List<ItemEffect>(efts);
+            instance.slotIndex = -1;
+            return instance;
+        }
+
+        public bool UseItem(ItemUseContext context)
         {
             isUsing = false;
-
             foreach (ItemEffect eft in efts)
             {
                 if (eft == null) continue;
-
-                if (eft is ItemHealingEffect healingEffect)
-                    healingEffect.Init(playerHP);
-
-                isUsing = eft.ExecuteRole();
+                isUsing = eft.Execute(context);
             }
             return isUsing;
         }
-
-
+    }
 }
-    
-    
-
-
-    //public SpriteRenderer image;
-
-    //public ItemData data;
-
-    //public Item(ItemData _data)
-    //{
-    //    data = _data;
-    //}
-
-
-
-   
-}
-

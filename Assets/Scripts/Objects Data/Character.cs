@@ -27,6 +27,13 @@ public class Character
             isUsing = _isUsing;
             characterPrefab = _characterPrefab;
         }
+        public CharacterData CreateInstance()
+        {
+            CharacterData instance = (CharacterData)MemberwiseClone();
+            instance.efts = efts == null ? null : new List<FollowerEffect>(efts);
+            instance.slotIndex = -1;
+            return instance;
+        }
         public bool UseCharacter()
         {
             isUsing = false;
