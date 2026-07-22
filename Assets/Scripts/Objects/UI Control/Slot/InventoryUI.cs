@@ -105,6 +105,11 @@ public class InventoryUI : MonoBehaviour
         inven.RemoveItem(invenDB.itemCurSubType, index);
     }
 
+    public void SwapItemSlot(int fromIndex, int toIndex)
+    {
+        inven.SwapItem(invenDB.itemCurSubType, fromIndex, toIndex);
+    }
+
     public void RedrawItemSlotUI()
     {
         // 이전 슬롯 필터링 데이터 초기화

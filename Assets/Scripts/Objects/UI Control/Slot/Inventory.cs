@@ -179,6 +179,27 @@ public class Inventory : Singleton<Inventory>
         return true;
     }
 
+    public bool SwapItem(string type, int fromSlotIndex, int toSlotIndex)
+    {
+        InventoryBag bag = GetItemBag(type);
+        if (fromSlotIndex < 0 || fromSlotIndex >= bag.slots.Length) return false;
+        if (toSlotIndex < 0 || toSlotIndex >= bag.slots.Length) return false;
+        if (fromSlotIndex == toSlotIndex) return false;
+        if (bag.slots[fromSlotIndex] == null) return false;
+
+        Item.ItemData fromItem = bag.slots[fromSlotIndex];
+        Item.ItemData toItem = bag.slots[toSlotIndex];
+
+        bag.slots[toSlotIndex] = fromItem;
+        bag.slots[fromSlotIndex] = toItem;
+
+        fromItem.slotIndex = toSlotIndex;
+        if (toItem != null) toItem.slotIndex = fromSlotIndex;
+
+        onChangeItem?.Invoke();
+        return true;
+    }
+
     public Item.ItemData GetItemAt(string type, int slotIndex)
     {
         InventoryBag bag = GetItemBag(type);
