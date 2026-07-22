@@ -74,7 +74,7 @@ public class InventoryUI : MonoBehaviour
     private void UpdateSlotCountTexts()
     {
         characterSlotNumText.text = string.Format("{0} / {1}", inven.acquiredCharacters, inven.CharacterSlotCnt);
-        itemSlotNumText.text = string.Format("{0} / {1}", inven.acquiredItems, inven.ItemSlotCnt);
+        itemSlotNumText.text = string.Format("{0} / {1}", inven.GetItemCount(invenDB.itemCurSubType), inven.ItemSlotCnt);
     }
 
     private void SetSlotButtons<TSlot>(TSlot[] slots, int slotCount, Action<TSlot, int> setIndex) where TSlot : MonoBehaviour
@@ -102,9 +102,7 @@ public class InventoryUI : MonoBehaviour
 
     public void RemoveItemSlotAt(int index)
     {
-        int itemIndex = inven.items.FindIndex(item =>
-            item.type == invenDB.itemCurSubType && item.slotIndex == index);
-        if (itemIndex >= 0) inven.RemoveItem(itemIndex);
+        inven.RemoveItem(invenDB.itemCurSubType, index);
     }
 
     public void RedrawItemSlotUI()
@@ -117,7 +115,7 @@ public class InventoryUI : MonoBehaviour
         }
 
         // 슬롯 데이터 필터링
-        filteredItemList = inven.items.FindAll(item => item.type == invenDB.itemCurSubType);
+        filteredItemList = inven.GetItems(invenDB.itemCurSubType);
         for (int i = 0; i < filteredItemList.Count; i++)
         {
             int slotIndex = filteredItemList[i].slotIndex;

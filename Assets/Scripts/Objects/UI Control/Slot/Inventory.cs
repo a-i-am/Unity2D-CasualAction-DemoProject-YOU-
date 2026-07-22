@@ -3,6 +3,71 @@ using UnityEngine;
 
 public class Inventory : Singleton<Inventory>
 {
+    private static readonly string[] DefaultItemBagTypes = { "Absorption", "Equipment", "Etc", "Mission" };
+
+    public class InventoryBag
+    {
+        public Item.ItemData[] slots;
+        private int nextSearchIndex;
+        private int count;
+
+        public InventoryBag(int size)
+        {
+            slots = new Item.ItemData[size];
+        }
+
+        public int Count => count;
+
+        public void Resize(int size)
+        {
+            if (slots.Length == size) return;
+            System.Array.Resize(ref slots, size);
+            if (count > size) Recount();
+            if (nextSearchIndex >= size) nextSearchIndex = 0;
+        }
+
+        public int FindAvailableSlot()
+        {
+            if (slots.Length == 0) return -1;
+
+            for (int offset = 0; offset < slots.Length; offset++)
+            {
+                int index = (nextSearchIndex + offset) % slots.Length;
+                if (slots[index] == null) return index;
+            }
+
+            return -1;
+        }
+
+        public bool Add(Item.ItemData item)
+        {
+            int index = FindAvailableSlot();
+            if (index < 0) return false;
+
+            item.slotIndex = index;
+            slots[index] = item;
+            count++;
+            nextSearchIndex = (index + 1) % slots.Length;
+            return true;
+        }
+
+        public bool RemoveAt(int index)
+        {
+            if (index < 0 || index >= slots.Length || slots[index] == null) return false;
+            slots[index] = null;
+            count--;
+            if (index < nextSearchIndex) nextSearchIndex = index;
+            return true;
+        }
+
+        private void Recount()
+        {
+            count = 0;
+            for (int i = 0; i < slots.Length; i++)
+                if (slots[i] != null) count++;
+        }
+    }
+
     [Header("외부 참조")]
     [HideInInspector] public InventoryUI invenUI;
     private Enemy enemy;
@@ -17,6 +82,7 @@ public class Inventory : Singleton<Inventory>
     public OnCharacterSlotCountChange onCharacterSlotCountChange;
 
     // 아이템
+    private readonly Dictionary<string, InventoryBag> itemBags = new Dictionary<string, InventoryBag>();
     public delegate void OnChangeItem();
     public delegate void OnItemSlotCountChange(int val);
     public OnChangeItem onChangeItem;
@@ -24,7 +90,6 @@ public class Inventory : Singleton<Inventory>
 
     // 리스트
     public List<Character.CharacterData> characters = new List<Character.CharacterData>();
-    public List<Item.ItemData> items = new List<Item.ItemData>();
     public List<FollowerController> activeFollowers;
 
     [Header("수량 데이터")]
@@ -50,6 +115,7 @@ public class Inventory : Singleton<Inventory>
         set
         {
             itemSlotCnt = value;
+            ResizeItemBags(itemSlotCnt);
             onItemSlotCountChange?.Invoke(itemSlotCnt);
         }
     }
@@ -58,6 +124,8 @@ public class Inventory : Singleton<Inventory>
     {
         CharacterSlotCnt = characterSlotCnt;
         ItemSlotCnt = itemSlotCnt;
+        for (int i = 0; i < DefaultItemBagTypes.Length; i++)
+            GetItemBag(DefaultItemBagTypes[i]);
         //ItemSlotCnt = invenUI.itemSlots.Length;
         //CharacterSlotCnt = invenUI.characterSlots.Length;
     }
@@ -80,11 +148,11 @@ public class Inventory : Singleton<Inventory>
 
     public bool AddItem(Item.ItemData _item)
     {
-        if (_item == null || items.Count >= ItemSlotCnt) return false;
+        if (_item == null) return false;
+
         Item.ItemData item = _item.CreateInstance();
-        item.slotIndex = FindAvailableItemSlot(item.type);
-        if (item.slotIndex < 0) return false;
-        items.Add(item);
+        if (!GetItemBag(item.type).Add(item)) return false;
+
         acquiredItems++;
         onChangeItem?.Invoke();
         return true;
@@ -99,17 +167,54 @@ public class Inventory : Singleton<Inventory>
 
     private int FindAvailableItemSlot(string type)
     {
-        for (int i = 0; i < ItemSlotCnt; i++)
-            if (!items.Exists(item => item.type == type && item.slotIndex == i)) return i;
-        return -1;
+        return GetItemBag(type).FindAvailableSlot();
     }
 
-    public void RemoveItem(int _index)
+    public bool RemoveItem(string type, int slotIndex)
     {
-        if (_index < 0 || _index >= items.Count) return;
-        items.RemoveAt(_index);
+        if (!GetItemBag(type).RemoveAt(slotIndex)) return false;
+
         acquiredItems--;
         onChangeItem?.Invoke();
+        return true;
+    }
+
+    public Item.ItemData GetItemAt(string type, int slotIndex)
+    {
+        InventoryBag bag = GetItemBag(type);
+        if (slotIndex < 0 || slotIndex >= bag.slots.Length) return null;
+        return bag.slots[slotIndex];
+    }
+
+    public List<Item.ItemData> GetItems(string type)
+    {
+        InventoryBag bag = GetItemBag(type);
+        List<Item.ItemData> result = new List<Item.ItemData>();
+        for (int i = 0; i < bag.slots.Length; i++)
+            if (bag.slots[i] != null) result.Add(bag.slots[i]);
+        return result;
+    }
+
+    public int GetItemCount(string type)
+    {
+        return GetItemBag(type).Count;
+    }
+
+    private InventoryBag GetItemBag(string type)
+    {
+        if (string.IsNullOrEmpty(type)) type = string.Empty;
+        if (!itemBags.TryGetValue(type, out InventoryBag bag))
+        {
+            bag = new InventoryBag(ItemSlotCnt);
+            itemBags.Add(type, bag);
+        }
+        return bag;
+    }
+
+    private void ResizeItemBags(int size)
+    {
+        foreach (InventoryBag bag in itemBags.Values)
+            bag.Resize(size);
     }
 
     public void RemoveCharacter(int _index)
