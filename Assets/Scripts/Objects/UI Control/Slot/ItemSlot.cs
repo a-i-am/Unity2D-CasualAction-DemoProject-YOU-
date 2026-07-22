@@ -2,10 +2,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IDropHandler, IEndDragHandler
+public class ItemSlot : MonoBehaviour, IDragHandler, IDropHandler
 {
-    private static ItemSlot draggedSlot;
-
     [Header("아이템 정보")]
     public int itemSlotnum;
     public Image itemIcon;
@@ -42,24 +40,15 @@ public class ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IDropHan
         if (itemData == null) return;
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        draggedSlot = itemData == null ? null : this;
-    }
-
     public void OnDrag(PointerEventData eventData)
     {
     }
 
     public void OnDrop(PointerEventData eventData)
     {
-        if (draggedSlot == null || draggedSlot == this || inventoryUI == null) return;
-        inventoryUI.SwapItemSlot(draggedSlot.itemSlotnum, itemSlotnum);
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        draggedSlot = null;
+        ItemSlot sourceSlot = eventData.pointerDrag == null ? null : eventData.pointerDrag.GetComponent<ItemSlot>();
+        if (sourceSlot == null || sourceSlot == this || inventoryUI == null) return;
+        inventoryUI.SwapItemSlot(sourceSlot.itemSlotnum, itemSlotnum);
     }
 
     public void OnClick()
