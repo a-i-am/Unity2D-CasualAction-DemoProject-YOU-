@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ItemSlot : MonoBehaviour, IDragHandler, IDropHandler
+public class ItemSlot : MonoBehaviour, IDropHandler
 {
     [Header("아이템 정보")]
     public int itemSlotnum;
@@ -21,7 +21,6 @@ public class ItemSlot : MonoBehaviour, IDragHandler, IDropHandler
         if (pointable != null)
         {
             pointable.OnClick = OnClick;
-            pointable.OnPointerUpAction = OnPointerUp;
         }
     }
     private void Start()
@@ -34,21 +33,16 @@ public class ItemSlot : MonoBehaviour, IDragHandler, IDropHandler
         useContext = context;
     }
 
-    public void OnPointerUp()
-    {
-        // 드래그 & 드롭
-        if (itemData == null) return;
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-    }
-
     public void OnDrop(PointerEventData eventData)
     {
-        ItemSlot sourceSlot = eventData.pointerDrag == null ? null : eventData.pointerDrag.GetComponent<ItemSlot>();
+        DraggableUI draggable = eventData.pointerDrag == null ? null : eventData.pointerDrag.GetComponent<DraggableUI>();
+        ItemSlot sourceSlot = draggable == null ? null : draggable.SourceSlot;
+        if (sourceSlot == null && eventData.pointerDrag != null)
+            sourceSlot = eventData.pointerDrag.GetComponentInParent<ItemSlot>();
         if (sourceSlot == null || sourceSlot == this || inventoryUI == null) return;
+        if (draggable != null) draggable.RestoreVisual();
         inventoryUI.SwapItemSlot(sourceSlot.itemSlotnum, itemSlotnum);
+        if (draggable != null) draggable.ClearSourceSlot();
     }
 
     public void OnClick()

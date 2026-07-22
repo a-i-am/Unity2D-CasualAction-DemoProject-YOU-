@@ -165,6 +165,23 @@ public class Inventory : Singleton<Inventory>
         return -1;
     }
 
+    public bool SwapCharacter(string type, int fromSlotIndex, int toSlotIndex)
+    {
+        if (fromSlotIndex < 0 || fromSlotIndex >= CharacterSlotCnt) return false;
+        if (toSlotIndex < 0 || toSlotIndex >= CharacterSlotCnt) return false;
+        if (fromSlotIndex == toSlotIndex) return false;
+
+        Character.CharacterData fromCharacter = characters.Find(character => character.type == type && character.slotIndex == fromSlotIndex);
+        if (fromCharacter == null) return false;
+
+        Character.CharacterData toCharacter = characters.Find(character => character.type == type && character.slotIndex == toSlotIndex);
+        fromCharacter.slotIndex = toSlotIndex;
+        if (toCharacter != null) toCharacter.slotIndex = fromSlotIndex;
+
+        onChangeCharacter?.Invoke();
+        return true;
+    }
+
     private int FindAvailableItemSlot(string type)
     {
         return GetItemBag(type).FindAvailableSlot();

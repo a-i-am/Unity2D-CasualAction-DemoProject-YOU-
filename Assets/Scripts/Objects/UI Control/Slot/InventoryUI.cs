@@ -173,6 +173,11 @@ public class InventoryUI : MonoBehaviour
         if (characterIndex >= 0) inven.RemoveCharacter(characterIndex);
     }
 
+    public void SwapCharacterSlot(int fromIndex, int toIndex)
+    {
+        inven.SwapCharacter(invenDB.characterCurSubType, fromIndex, toIndex);
+    }
+
     #endregion
 
     void Update()

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CharacterSlot : MonoBehaviour
+public class CharacterSlot : MonoBehaviour, IDropHandler
 {
     [Header("캐릭터 정보")]
     public int characterSlotnum;
@@ -29,13 +29,19 @@ public class CharacterSlot : MonoBehaviour
         if (pointable != null)
         {
             pointable.OnClick = OnClick;
-            pointable.OnPointerUpAction = OnPointerUp;
         }
     }
-    public void OnPointerUp()
+
+    public void OnDrop(PointerEventData eventData)
     {
-        // 드래그 & 드롭
-        if (characterData == null) return;
+        DraggableUI draggable = eventData.pointerDrag == null ? null : eventData.pointerDrag.GetComponent<DraggableUI>();
+        CharacterSlot sourceSlot = draggable == null ? null : draggable.SourceCharacterSlot;
+        if (sourceSlot == null && eventData.pointerDrag != null)
+            sourceSlot = eventData.pointerDrag.GetComponentInParent<CharacterSlot>();
+        if (sourceSlot == null || sourceSlot == this || invenUI == null) return;
+        if (draggable != null) draggable.RestoreVisual();
+        invenUI.SwapCharacterSlot(sourceSlot.characterSlotnum, characterSlotnum);
+        if (draggable != null) draggable.ClearSourceSlot();
     }
     public void OnClick()
     {
