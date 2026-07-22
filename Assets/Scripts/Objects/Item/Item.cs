@@ -40,7 +40,7 @@ public class Item
             foreach (ItemEffect eft in efts)
             {
                 if (eft == null) continue;
-                isUsing = eft.Execute(context);
+                isUsing |= eft.Execute(context);
             }
             return isUsing;
         }

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ItemSlot : MonoBehaviour, IBeginDragHandler, IDropHandler, IEndDragHandler
+public class ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IDropHandler, IEndDragHandler
 {
     private static ItemSlot draggedSlot;
 
@@ -45,6 +45,10 @@ public class ItemSlot : MonoBehaviour, IBeginDragHandler, IDropHandler, IEndDrag
     public void OnBeginDrag(PointerEventData eventData)
     {
         draggedSlot = itemData == null ? null : this;
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
     }
 
     public void OnDrop(PointerEventData eventData)
