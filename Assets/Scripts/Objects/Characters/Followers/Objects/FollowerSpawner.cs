@@ -16,6 +16,7 @@ public class FollowerSpawner : MonoBehaviour
     private void Start()
     {
         InitializeEmptyPos();
+        RestoreFollowers();
     }
     private void InitializeEmptyPos()
     {
@@ -30,20 +31,26 @@ public class FollowerSpawner : MonoBehaviour
         }
     }
 
-    public void SpawnFollower(Character.CharacterData characterData)
+    public bool SpawnFollower(Character.CharacterData characterData)
     {
-        if (emptySpawnQueue.Count == 0 || characterData == null || characterData.characterPrefab == null) return;
+        if (emptySpawnQueue.Count == 0 || characterData == null || characterData.characterPrefab == null) return false;
 
         spawnPos = emptySpawnQueue.Dequeue();
         spawnPos.gameObject.SetActive(true);
 
         follower = Instantiate(characterData.characterPrefab, spawnPos.position, Quaternion.identity, spawnPos);
+        follower.gameObject.tag = "Follower";
+        follower.gameObject.layer = LayerMask.NameToLayer("Follower");
+        foreach (Collider2D followerCollider in follower.GetComponentsInChildren<Collider2D>())
+            followerCollider.isTrigger = true;
         Debug.Log("팔로워 생성");
 
         if (!followerGroupMoving.enabled && follower != null)
         {
             followerGroupMoving.enabled = true;
         }
+
+        return true;
     }
 
     private void EnqueueSpawnPos(Follower follower)
@@ -54,5 +61,14 @@ public class FollowerSpawner : MonoBehaviour
             emptySpawnQueue.Enqueue(spawnPos);
         }
         spawnPos = null;
+    }
+
+    private void RestoreFollowers()
+    {
+        Inventory inventory = Inventory.Instance;
+        if (inventory == null) return;
+
+        foreach (Character.CharacterData character in inventory.SavedFollowers)
+            SpawnFollower(character);
     }
 }

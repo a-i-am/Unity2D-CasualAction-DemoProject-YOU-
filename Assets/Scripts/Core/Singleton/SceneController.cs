@@ -13,11 +13,20 @@ public class SceneController : Singleton<SceneController>
     {
         StartCoroutine(LoadLevel());
     }
-    IEnumerator LoadLevel()
+
+    public void LoadScene(string sceneName)
+    {
+        StartCoroutine(LoadLevel(sceneName));
+    }
+
+    IEnumerator LoadLevel(string sceneName = null)
     {
         transitionAnim.SetTrigger("End");
         yield return new WaitForSeconds(1);
-        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
+        if (string.IsNullOrEmpty(sceneName))
+            SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
+        else
+            SceneManager.LoadSceneAsync(sceneName);
         transitionAnim.SetTrigger("Start");
     }
 

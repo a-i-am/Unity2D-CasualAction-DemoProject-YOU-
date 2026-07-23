@@ -10,6 +10,15 @@ public class PlayerHPValue
 
     [SerializeField] private float playerMaxVal;
     [SerializeField] private float playerCurrentVal;
+    private static bool hasSavedPlayerCurrentVal;
+    private static float savedPlayerCurrentVal;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetSavedPlayerHP()
+    {
+        hasSavedPlayerCurrentVal = false;
+        savedPlayerCurrentVal = 0f;
+    }
 
     //public float MaxVal { get => maxVal; set => maxVal = value; }
 
@@ -25,6 +34,8 @@ public class PlayerHPValue
         set
         {
             this.playerCurrentVal = Mathf.Clamp(value, 0, playerMaxVal);
+            savedPlayerCurrentVal = this.playerCurrentVal;
+            hasSavedPlayerCurrentVal = true;
             EnsurePlayerHP();
             if (playerHP != null) playerHP.PlayerValue = playerCurrentVal;
         }
@@ -48,7 +59,7 @@ public class PlayerHPValue
     public void PlayerHPInitialize()
     {
         this.PlayerMaxVal = playerMaxVal;
-        this.PlayerCurrentVal = playerCurrentVal;
+        this.PlayerCurrentVal = hasSavedPlayerCurrentVal ? savedPlayerCurrentVal : playerCurrentVal;
     }
 
     private void EnsurePlayerHP()

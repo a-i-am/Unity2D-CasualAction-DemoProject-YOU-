@@ -82,21 +82,29 @@ public class Inventory : Singleton<Inventory>
     public OnCharacterSlotCountChange onCharacterSlotCountChange;
 
     // 아이템
-    private readonly Dictionary<string, InventoryBag> itemBags = new Dictionary<string, InventoryBag>();
+    private static readonly Dictionary<string, InventoryBag> itemBags = new Dictionary<string, InventoryBag>();
     public delegate void OnChangeItem();
     public delegate void OnItemSlotCountChange(int val);
     public OnChangeItem onChangeItem;
     public OnItemSlotCountChange onItemSlotCountChange;
 
     // 리스트
-    public List<Character.CharacterData> characters = new List<Character.CharacterData>();
+    private static readonly List<Character.CharacterData> savedCharacters = new List<Character.CharacterData>();
+    private static readonly List<Character.CharacterData> savedFollowers = new List<Character.CharacterData>();
+    public List<Character.CharacterData> characters => savedCharacters;
+    public IReadOnlyList<Character.CharacterData> SavedFollowers => savedFollowers;
     public List<FollowerController> activeFollowers;
 
     [Header("수량 데이터")]
     // 인벤토리 캐릭터(몹), 아이템 보유(획득)수량 표시
-    [HideInInspector] public int acquiredCharacters = 0;
-    [HideInInspector] public int acquiredItems = 0;
-    [HideInInspector] public int pickupMobCount = 0;
+    private static int savedAcquiredCharacters;
+    private static int savedAcquiredItems;
+    private static int savedPickupMobCount;
+    private static int savedCharacterSlotCnt = -1;
+    private static int savedItemSlotCnt = -1;
+    [HideInInspector] public int acquiredCharacters { get => savedAcquiredCharacters; set => savedAcquiredCharacters = value; }
+    [HideInInspector] public int acquiredItems { get => savedAcquiredItems; set => savedAcquiredItems = value; }
+    [HideInInspector] public int pickupMobCount { get => savedPickupMobCount; set => savedPickupMobCount = value; }
     [SerializeField] private int characterSlotCnt;
     [SerializeField] private int itemSlotCnt;
 
@@ -106,6 +114,7 @@ public class Inventory : Singleton<Inventory>
         set
         {
             characterSlotCnt = value;
+            savedCharacterSlotCnt = value;
             onCharacterSlotCountChange?.Invoke(characterSlotCnt);
         }
     }
@@ -115,6 +124,7 @@ public class Inventory : Singleton<Inventory>
         set
         {
             itemSlotCnt = value;
+            savedItemSlotCnt = value;
             ResizeItemBags(itemSlotCnt);
             onItemSlotCountChange?.Invoke(itemSlotCnt);
         }
@@ -122,8 +132,8 @@ public class Inventory : Singleton<Inventory>
 
     void Start()
     {
-        CharacterSlotCnt = characterSlotCnt;
-        ItemSlotCnt = itemSlotCnt;
+        CharacterSlotCnt = savedCharacterSlotCnt < 0 ? characterSlotCnt : savedCharacterSlotCnt;
+        ItemSlotCnt = savedItemSlotCnt < 0 ? itemSlotCnt : savedItemSlotCnt;
         for (int i = 0; i < DefaultItemBagTypes.Length; i++)
             GetItemBag(DefaultItemBagTypes[i]);
         //ItemSlotCnt = invenUI.itemSlots.Length;
@@ -136,7 +146,7 @@ public class Inventory : Singleton<Inventory>
 
     public bool AddCharacter(Character.CharacterData _character)
     {
-        if (_character == null || characters.Count >= CharacterSlotCnt) return false;
+        if (_character == null || GetCharacterCount(_character.type) >= CharacterSlotCnt) return false;
         Character.CharacterData character = _character.CreateInstance();
         character.slotIndex = FindAvailableCharacterSlot(character.type);
         if (character.slotIndex < 0) return false;
@@ -163,6 +173,14 @@ public class Inventory : Singleton<Inventory>
         for (int i = 0; i < CharacterSlotCnt; i++)
             if (!characters.Exists(character => character.type == type && character.slotIndex == i)) return i;
         return -1;
+    }
+
+    public int GetCharacterCount(string type)
+    {
+        int count = 0;
+        for (int i = 0; i < characters.Count; i++)
+            if (characters[i].type == type) count++;
+        return count;
     }
 
     public bool SwapCharacter(string type, int fromSlotIndex, int toSlotIndex)
@@ -286,17 +304,22 @@ public class Inventory : Singleton<Inventory>
             {
                 if (Input.GetKeyDown(KeyCode.V)) // Collect
                 {
-                    AddCharacter(enemy.GetCharacter());
-
-                    pickupMobCount += 1;
+                    if (!AddCharacter(enemy.GetCharacter())) return;
 
                     if (enemy != null)
                     {
+                        pickupMobCount += 1;
                         Destroy(enemy.gameObject);
                         Debug.Log("enemy 획득!");
                     }
                 }
             }
         }
+    }
+
+    public void RememberFollower(Character.CharacterData character)
+    {
+        if (character == null || savedFollowers.Contains(character)) return;
+        savedFollowers.Add(character);
     }
 }

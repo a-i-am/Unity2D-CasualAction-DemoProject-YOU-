@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Parallax : MonoBehaviour
 {
+    private const float TileSpacingRatio = 0.9f;
+
     [SerializeField]
     private Transform cameraTransform; // 카메라의 Transform 컴포넌트
     
@@ -20,6 +23,7 @@ public class Parallax : MonoBehaviour
     {
         // 게임 시작 때 카메라 위치 저장(이동 거리 계산용) 
         cameraStartPosition = cameraTransform.position;
+        FillCameraWidth();
 
         // 배경 개수를 구하고, 배경 정보를 저장할 GameObject 배열 선언
         int backgroundCount = transform.childCount;
@@ -33,6 +37,8 @@ public class Parallax : MonoBehaviour
         for(int i = 0; i < backgroundCount; ++i)
         {
             backgrounds[i] = transform.GetChild(i).gameObject;
+            ParallaxBackground autoScroll = backgrounds[i].GetComponent<ParallaxBackground>();
+            if (autoScroll != null) autoScroll.enabled = false;
             materials[i] = backgrounds[i].GetComponent<Renderer>().material;
         }
 
@@ -77,5 +83,92 @@ public class Parallax : MonoBehaviour
             float speed = layerMoveSpeed[i] * parallaxSpeed;
             materials[i].SetTextureOffset("_MainTex", new Vector2(distance, 0) * speed);
         }
+    }
+
+    void FillCameraWidth()
+    {
+        Camera cam = cameraTransform.GetComponent<Camera>();
+        if (cam == null || !cam.orthographic) return;
+
+        RemoveAutoTiles();
+
+        float viewWidth = cam.orthographicSize * 2f * cam.aspect;
+        List<Transform> children = new List<Transform>();
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Transform child = transform.GetChild(i);
+            if (child.gameObject.activeSelf) children.Add(child);
+        }
+
+        foreach (var group in children.GroupBy(child => GetLayerKey(child)))
+        {
+            Transform first = group.First();
+            Renderer firstRenderer = first.GetComponent<Renderer>();
+            if (firstRenderer == null) continue;
+
+            float width = firstRenderer.bounds.size.x;
+            if (width <= 0f) continue;
+
+            List<Transform> tiles = group.OrderBy(child => child.localPosition.x).ToList();
+            float spacing = width * TileSpacingRatio;
+            int needed = Mathf.Max(tiles.Count, Mathf.CeilToInt(viewWidth / spacing) + 3);
+
+            while (tiles.Count < needed)
+                tiles.Add(CreateTile(first, firstRenderer));
+
+            float startX = -(tiles.Count - 1) * spacing * 0.5f;
+            for (int i = 0; i < tiles.Count; i++)
+            {
+                Vector3 pos = first.localPosition;
+                pos.x = startX + spacing * i;
+                tiles[i].localPosition = pos;
+            }
+        }
+    }
+
+    void RemoveAutoTiles()
+    {
+        List<GameObject> autoTiles = new List<GameObject>();
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Transform child = transform.GetChild(i);
+            if (child.name.EndsWith(" (Auto)")) autoTiles.Add(child.gameObject);
+        }
+
+        foreach (GameObject tile in autoTiles)
+            Destroy(tile);
+    }
+
+    string GetLayerKey(Transform child)
+    {
+        Renderer renderer = child.GetComponent<Renderer>();
+        string materialName = renderer != null && renderer.sharedMaterial != null ? renderer.sharedMaterial.name : "";
+        Vector3 pos = child.localPosition;
+        Vector3 scale = child.localScale;
+        return $"{materialName}:{pos.y:F3}:{pos.z:F3}:{scale.x:F3}:{scale.y:F3}";
+    }
+
+    Transform CreateTile(Transform source, Renderer sourceRenderer)
+    {
+        GameObject tile = new GameObject(source.name + " (Auto)");
+        tile.transform.SetParent(transform, false);
+        tile.transform.localPosition = source.localPosition;
+        tile.transform.localRotation = source.localRotation;
+        tile.transform.localScale = source.localScale;
+
+        MeshFilter sourceFilter = source.GetComponent<MeshFilter>();
+        if (sourceFilter != null)
+        {
+            MeshFilter filter = tile.AddComponent<MeshFilter>();
+            filter.sharedMesh = sourceFilter.sharedMesh;
+        }
+
+        MeshRenderer renderer = tile.AddComponent<MeshRenderer>();
+        renderer.sharedMaterial = sourceRenderer.sharedMaterial;
+        renderer.sortingLayerID = sourceRenderer.sortingLayerID;
+        renderer.sortingOrder = sourceRenderer.sortingOrder;
+        renderer.shadowCastingMode = sourceRenderer.shadowCastingMode;
+        renderer.receiveShadows = sourceRenderer.receiveShadows;
+        return tile.transform;
     }
 }

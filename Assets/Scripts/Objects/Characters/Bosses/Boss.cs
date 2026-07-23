@@ -62,6 +62,7 @@ public class Boss : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
         rbBoss = GetComponent<Rigidbody2D>();
+        rbBoss.constraints = RigidbodyConstraints2D.FreezeRotation;
         anim = GetComponent<Animator>();
         gushOutEffect = transform.GetChild(0).GetComponent<ParticleSystem>();
     }
@@ -145,7 +146,7 @@ public class Boss : MonoBehaviour
             isSpinDirectionSet = true;
         }
 
-        rbBoss.velocity = new Vector2(spinDirection * spinSpeed, rbBoss.position.y);
+        rbBoss.velocity = new Vector2(spinDirection * spinSpeed, rbBoss.velocity.y);
 
         // 속도 제한
         if (rbBoss.velocity.magnitude > spinSpeed)

@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class NextPortal : MonoBehaviour
 {
+    [SerializeField] private string targetSceneName;
     private bool isAllowEnter;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if(other.CompareTag("Player"))
         {
-            SceneController.Instance.NextLevel();   
+            if (string.IsNullOrEmpty(targetSceneName))
+                SceneController.Instance.NextLevel();
+            else
+                SceneController.Instance.LoadScene(targetSceneName);
         }
 
         if (isAllowEnter && other.gameObject.layer == LayerMask.NameToLayer("PortalGuard"))

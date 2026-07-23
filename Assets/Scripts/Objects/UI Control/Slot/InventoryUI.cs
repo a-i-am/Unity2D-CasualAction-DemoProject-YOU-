@@ -73,7 +73,7 @@ public class InventoryUI : MonoBehaviour
 
     private void UpdateSlotCountTexts()
     {
-        characterSlotNumText.text = string.Format("{0} / {1}", inven.acquiredCharacters, inven.CharacterSlotCnt);
+        characterSlotNumText.text = string.Format("{0} / {1}", inven.GetCharacterCount(invenDB.characterCurSubType), inven.CharacterSlotCnt);
         itemSlotNumText.text = string.Format("{0} / {1}", inven.GetItemCount(invenDB.itemCurSubType), inven.ItemSlotCnt);
     }
 

@@ -49,6 +49,6 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     // 객체가 파괴될 때 호출
     public virtual void OnDestroy()
     {
-        _isApplicationQuit = true;
+        if (_instance == this) _instance = null;
     }
 }

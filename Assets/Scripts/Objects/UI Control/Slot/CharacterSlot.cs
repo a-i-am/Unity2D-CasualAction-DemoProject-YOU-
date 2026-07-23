@@ -48,7 +48,8 @@ public class CharacterSlot : MonoBehaviour, IDropHandler
         // 슬롯 클릭 트리거
         if (characterData == null) return;
         
-            followerSpawner.SpawnFollower(characterData);
+            if (!followerSpawner.SpawnFollower(characterData)) return;
+            Inventory.Instance.RememberFollower(characterData);
             invenUI.RemoveCharacterSlotAt(characterSlotnum);
         // onChangeCharacter.Invoke(); // 이벤트 방식
         /*

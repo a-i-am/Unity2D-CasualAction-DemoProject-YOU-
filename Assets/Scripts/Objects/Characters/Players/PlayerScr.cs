@@ -65,7 +65,8 @@ namespace Assets
 
             Physics2D.IgnoreLayerCollision(7, 8); // Player(7)과 Attack(8) 충돌 무시 
             Physics2D.IgnoreLayerCollision(8, 8); // Attack(8)과 Attack(8) 충돌 무시
-            Physics2D.IgnoreLayerCollision(9, 8); // Follower(9)과 Attack(8) 충돌 무시
+            Physics2D.IgnoreLayerCollision(9, 8); // Follower(9)와 Attack(8) 충돌 무시
+            Physics2D.IgnoreLayerCollision(7, 9); // Player(7)와 Follower(9) 충돌 무시
         }
 
         void Awake()

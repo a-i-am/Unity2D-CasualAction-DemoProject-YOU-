@@ -103,7 +103,7 @@ public class FollowerController : MonoBehaviour, IFollowerTargetReceivable, IFol
     }
     public void DashAndReturn()
     {
-        if (isDashing && currentTarget == null && currentTarget.isFainted) return;
+        if (isDashing || currentTarget == null || currentTarget.isFainted) return;
         #region 디버깅(null 체크)
         if (currentTarget == null)
         {
