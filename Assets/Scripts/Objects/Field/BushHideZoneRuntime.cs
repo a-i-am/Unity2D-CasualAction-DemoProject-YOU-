@@ -17,9 +17,12 @@ public class BushHideZoneRuntime : MonoBehaviour
     private void OnTriggerExit2D(Collider2D other)
     {
         if (!other.CompareTag("Player")) return;
-        if (Physics2D.GetIgnoreLayerCollision(6, 7)) return;
 
-        SetAlpha(other, 1f);
+        SpriteRenderer renderer = other.GetComponent<SpriteRenderer>();
+        if (renderer == null) return;
+        if (renderer.color.a < hiddenAlpha) return;
+
+        SetAlpha(renderer, 1f);
     }
 
     private void Hide(Collider2D other)

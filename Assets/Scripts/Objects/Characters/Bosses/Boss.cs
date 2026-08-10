@@ -4,6 +4,7 @@ public class Boss : MonoBehaviour
 {
     
     [SerializeField] private GameObject nextPortal;
+    [SerializeField] private GameObject previousPortal;
     [SerializeField] private ParticleSystem gushOutEffect;
     [SerializeField] private float speed;
     [SerializeField] private float followDistance;
@@ -45,8 +46,7 @@ public class Boss : MonoBehaviour
             gushOutEffect.Stop();
             gushOutEffectObj.SetActive(false);
 
-            if(nextPortal != null)
-                nextPortal.SetActive(true);
+            SetLockedPortalsActive(true);
         }
 
     }
@@ -65,6 +65,7 @@ public class Boss : MonoBehaviour
         rbBoss.constraints = RigidbodyConstraints2D.FreezeRotation;
         anim = GetComponent<Animator>();
         gushOutEffect = transform.GetChild(0).GetComponent<ParticleSystem>();
+        SetLockedPortalsActive(false);
     }
 
     // Update is called once per frame
@@ -234,6 +235,12 @@ public class Boss : MonoBehaviour
             transform.Rotate(0f, 180f, 0f);
             isFlipped = true;
         }
+    }
+
+    private void SetLockedPortalsActive(bool active)
+    {
+        if (previousPortal != null) previousPortal.SetActive(active);
+        if (nextPortal != null) nextPortal.SetActive(active);
     }
 
 

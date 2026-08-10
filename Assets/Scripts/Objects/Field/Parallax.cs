@@ -40,6 +40,7 @@ public class Parallax : MonoBehaviour
             ParallaxBackground autoScroll = backgrounds[i].GetComponent<ParallaxBackground>();
             if (autoScroll != null) autoScroll.enabled = false;
             materials[i] = backgrounds[i].GetComponent<Renderer>().material;
+            if (materials[i].mainTexture != null) materials[i].mainTexture.wrapMode = TextureWrapMode.Repeat;
         }
 
         // 레이어(카메라와의 z 거리 기준)별로 이동 속도 설정

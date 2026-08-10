@@ -8,22 +8,16 @@ namespace Assets
     {
         private Animator anim;
         private float inputHorizontal;
-        PlayerScr player;
-        void Awake()
+        private PlayerScr player;
+
+        private void Awake()
         {
             anim = GetComponentInChildren<Animator>();
             player = GetComponent<PlayerScr>();
         }
-        #region MoveSpeedComment
-        //public float MoveSpeed
-        //{
-        //    set => anim.SetFloat("movementSpeed", value);
-        //    get => anim.GetFloat("movementSpeed");
-        //}
-        #endregion
-        void Update()
+
+        private void Update()
         {
-            // Walk Anim
             inputHorizontal = Input.GetAxisRaw("Horizontal");
 
             if (Input.GetButton("Jump") && player.isGrounded)
@@ -31,32 +25,19 @@ namespace Assets
                 anim.SetBool("Jump", true);
             }
             else if (Input.GetButtonUp("Jump"))
-            { anim.SetBool("Jump", false); }
-
-            #region isJumpingComment
-            //private bool isJumping = false; // 점프 모션이 실행 중인지 여부
-
-            // SetBool("New Bool", false);
-            //isJumping = true; // Jump 입력 시 점프 모션이 실행 중임을 설정
-            //if (!isJumping) // 점프 모션이 실행 중이 아닐 때에만 Idle 모션으로 전환
-            //{
-            //    animator.SetBool("IdleAnimation", true);
-            //}
-            #endregion
-        }
-
-
-        public void WalkAnimation(bool IsWalk)
-        {
-            if (player.isGrounded)
             {
-                //anim.SetTrigger("Walking");
-                anim.SetBool("IsWalk", IsWalk);
+                anim.SetBool("Jump", false);
             }
         }
 
+        public void WalkAnimation(bool isWalk)
+        {
+            if (player.isGrounded)
+            {
+                anim.SetBool("IsWalk", isWalk);
+            }
+        }
 
-        // DeadJump Anim(GameOver action 1)
         public void DeadJumpAnimation(bool isFallDead)
         {
             anim.SetBool("DeadJump", isFallDead);
@@ -80,16 +61,7 @@ namespace Assets
 
         public void CastingSpellAnimation(bool isCastingSpell)
         {
-
             anim.SetBool("CastingSpell", isCastingSpell);
-            //if(!player.isAttacking && Input.GetKey(KeyCode.X))
-            //{
-            //    anim.SetTrigger("CastingSpell");
-            //}
-            //else if (Input.GetKeyUp(KeyCode.X)) 
-            //{ anim.ResetTrigger("CastingSpell"); }
-
-
         }
     }
 }

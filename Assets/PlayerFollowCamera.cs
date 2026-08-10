@@ -4,32 +4,30 @@ namespace Script
 {
     public class PlayCameraFollow : MonoBehaviour
     {
-        [SerializeField] private GameObject Player;
+        [SerializeField] private GameObject player;
 
-        [SerializeField] private float minX;
-        [SerializeField] private float minY;
-        [SerializeField] private float maxX;
-        [SerializeField] private float maxY;
-        // Start is called before the first frame update
-        void Start()
+        [SerializeField] private float minX = -50f;
+        [SerializeField] private float minY = -50f;
+        [SerializeField] private float maxX = 50f;
+        [SerializeField] private float maxY = 50f;
+
+        private void Start()
         {
-            minX = -50f;
-            maxX = 50f;
-            minY = -50f;
-            maxY = 50f;
-            transform.position = Player.transform.position;
+            if (player != null)
+            {
+                transform.position = player.transform.position;
+            }
         }
 
-        // Update is called once per frame
-        void LateUpdate()
+        private void LateUpdate()
         {
-            if (Player != null)
+            if (player != null)
             {
-                var position = Player.transform.position;
+                Vector3 position = player.transform.position;
                 float posX = Mathf.Clamp(position.x, minX, maxX);
                 float posY = Mathf.Clamp(position.y, minY, maxY);
-                transform.position = new Vector3(posX, posY, -26);
+                transform.position = new Vector3(posX, posY, -26f);
             }
         }
     }
-}
+}
