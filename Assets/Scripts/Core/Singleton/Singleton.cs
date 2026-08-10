@@ -1,24 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T _instance = null;
-    private static object _lock = new object();
+    private static readonly object _lock = new object();
     private static bool _isApplicationQuit = false;
 
     public static T Instance
     {
         get
         {
-
-
             if (_isApplicationQuit)
             {
                 return null;
             }
-
 
             lock (_lock)
             {
@@ -28,17 +23,14 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 
                     if (_instance == null)
                     {
-                        GameObject singletonObject = new GameObject(typeof(T).ToString() + " (Singleton)");
+                        GameObject singletonObject = new GameObject(typeof(T).Name + " (Singleton)");
                         _instance = singletonObject.AddComponent<T>();
                         DontDestroyOnLoad(_instance);
                     }
                 }
                 return _instance;
             }
-
-
         }
-
     }
 
     protected virtual void OnApplicationQuit()
@@ -46,9 +38,9 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         _isApplicationQuit = true;
     }
 
-
     public virtual void OnDestroy()
     {
         _isApplicationQuit = true;
     }
 }
+

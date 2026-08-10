@@ -83,14 +83,16 @@ public class UI : MonoBehaviour
             playerHP.color = fullColor;
         }
 
-        originalProjectilePrefab = player.projectilePrefab;
+        if (player != null)
+        {
+            originalProjectilePrefab = player.ProjectilePrefab;
+        }
     }
 
-    void Update()
+    private void Update()
     {
         HandlePlayerHpBar();
         ChargeSpellGauge();
-
 
         if (Input.GetKeyUp(KeyCode.X))
         {
@@ -98,12 +100,7 @@ public class UI : MonoBehaviour
         }
     }
 
-
-
-
-
-
-    void HandlePlayerHpBar()
+    private void HandlePlayerHpBar()
     {
         if (playerHPFillAmount != playerHP.fillAmount)
         {
@@ -127,12 +124,12 @@ public class UI : MonoBehaviour
         {
             currentChargeValue += gaugeChargeSpeed * Time.deltaTime;
         }
-        else if(currentChargeValue > 0)
+        else if (currentChargeValue > 0)
         {
             currentChargeValue -= gaugeChargeSpeed * Time.deltaTime;
         }
 
-        if(circularSpellGauge.fillAmount >= 0)
+        if (circularSpellGauge.fillAmount >= 0)
             circularSpellGauge.fillAmount = currentChargeValue / 100;
     }
 
@@ -140,57 +137,44 @@ public class UI : MonoBehaviour
     {
         skillPrefab = null;
 
-        if(circularSpellGauge.fillAmount >= 0.25f && circularSpellGauge.fillAmount < 0.5f)
+        if (circularSpellGauge.fillAmount >= 0.25f && circularSpellGauge.fillAmount < 0.5f)
         {
-
             skillPrefab = skillPrefabLevel1;
         }
         else if (circularSpellGauge.fillAmount >= 0.5f && circularSpellGauge.fillAmount < 0.75f)
         {
-
             skillPrefab = skillPrefabLevel2;
         }
         else if (circularSpellGauge.fillAmount >= 0.75f && circularSpellGauge.fillAmount < 1.0f)
         {
-
             skillPrefab = skillPrefabLevel3;
         }
         else if (circularSpellGauge.fillAmount >= 0.1f)
         {
-
             skillPrefab = skillPrefabLevel4;
         }
 
-        if(skillPrefab != null)
+        if (skillPrefab != null)
         {
-
             currentChargeValue = 0;
             circularSpellGauge.fillAmount = 0;
-
-
-
-                UseSkill(skillPrefab);
-
+            UseSkill(skillPrefab);
         }
-
     }
+
     private void UseSkill(GameObject newSkillPrefab)
     {
-
-
-        if(newSkillPrefab == skillPrefabLevel1 || newSkillPrefab == skillPrefabLevel2)
+        if (newSkillPrefab == skillPrefabLevel1 || newSkillPrefab == skillPrefabLevel2)
         {
             currentProjectilePrefab = newSkillPrefab;
-            player.projectilePrefab = currentProjectilePrefab;
-
+            if (player != null) player.ProjectilePrefab = currentProjectilePrefab;
 
             StartCoroutine(ResetProjectile(skillDuration));
         }
-
         else
         {
             currentAOEPrefab = newSkillPrefab;
-            player.playerAOEPrefab = currentAOEPrefab;
+            if (player != null) player.PlayerAOEPrefab = currentAOEPrefab;
             StartCoroutine(ResetAOE(skillDuration));
         }
     }
@@ -199,15 +183,18 @@ public class UI : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
-
-        player.projectilePrefab = originalProjectilePrefab;
+        if (player != null) player.ProjectilePrefab = originalProjectilePrefab;
     }
 
     private IEnumerator ResetAOE(float delay)
     {
         yield return new WaitForSeconds(delay);
-        player.playerAOEPrefab = null;
-        player.isUseAOE = false;
+        if (player != null)
+        {
+            player.PlayerAOEPrefab = null;
+            player.IsUseAOE = false;
+        }
         skillPrefab = null;
     }
 }
+

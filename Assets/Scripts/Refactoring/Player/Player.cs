@@ -61,6 +61,10 @@ public class Player : Singleton<Player>
     public float MP { get => mp; set => mp = value; }
     public float MaxMP { get => maxMP; set => maxMP = value; }
     public float Atk { get => atk; set => atk = value; }
+    public GameObject ProjectilePrefab { get => projectilePrefab; set => projectilePrefab = value; }
+    public GameObject PlayerAOEPrefab { get => playerAOEPrefab; set => playerAOEPrefab = value; }
+    public bool IsUseAOE { get => isUseAOE; set => isUseAOE = value; }
+
 
     private void Start()
     {
