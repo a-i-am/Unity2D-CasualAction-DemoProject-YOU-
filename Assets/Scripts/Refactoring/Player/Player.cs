@@ -5,14 +5,14 @@ using Assets;
 
 public class Player : Singleton<Player>
 {
-    public float HP;
-    public float MaxHP;
-    public float MP;
-    public float MaxMP;
-    public float Atk;
+    [SerializeField] private float hp;
+    [SerializeField] private float maxHP;
+    [SerializeField] private float mp;
+    [SerializeField] private float maxMP;
+    [SerializeField] private float atk;
 
-    public ParticleSystem CastingSpellEffect;
-    public ObjectPoolManager projectilePool;
+    [SerializeField] private ParticleSystem castingSpellEffect;
+    [SerializeField] private ObjectPoolManager projectilePool;
 
     private Rigidbody2D rb;
     private Vector2 currentVelocity;
@@ -22,12 +22,11 @@ public class Player : Singleton<Player>
     private float inputHorizontal;
     private bool isDash;
 
+    [SerializeField] private PlayerHPValue health;
 
-    public PlayerHPValue health;
-
-    public GameObject projectilePrefab;
-    public GameObject playerAOEPrefab;
-    public bool isUseAOE = false;
+    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private GameObject playerAOEPrefab;
+    [SerializeField] private bool isUseAOE = false;
 
     [SerializeField] private Transform launchOffsetL;
     [SerializeField] private Transform launchOffsetR;
@@ -52,40 +51,42 @@ public class Player : Singleton<Player>
     internal bool isGrounded;
     internal bool isAttacking;
 
-    public Ghost ghost;
-    public float dashCooldown;
-
+    [SerializeField] private Ghost ghost;
+    [SerializeField] private float dashCooldown;
 
     private bool isCoroutineActive = false;
 
-    void Start()
+    public float HP { get => hp; set => hp = value; }
+    public float MaxHP { get => maxHP; set => maxHP = value; }
+    public float MP { get => mp; set => mp = value; }
+    public float MaxMP { get => maxMP; set => maxMP = value; }
+    public float Atk { get => atk; set => atk = value; }
+
+    private void Start()
     {
-
-
         GameManager.Instance.gameOverDele += OnDeath;
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         playerAnimScr = GetComponent<PlayerAnimScr>();
-        CastingSpellEffect = transform.GetChild(0).GetComponent<ParticleSystem>();
+        castingSpellEffect = transform.GetChild(0).GetComponent<ParticleSystem>();
 
         Physics2D.IgnoreLayerCollision(7, 8);
         Physics2D.IgnoreLayerCollision(8, 8);
         Physics2D.IgnoreLayerCollision(9, 8);
     }
 
-    void Awake()
+    private void Awake()
     {
         health.PlayerHPInitialize();
     }
 
-    void Update()
+    private void Update()
     {
         inputHorizontal = Input.GetAxisRaw("Horizontal");
         Jump();
         Launch();
         ResetLaunch();
         CheckGrounded();
-
 
         if (Input.GetKeyDown(KeyCode.C) && Time.time >= lastDashTime + dashCooldown)
         {
@@ -94,15 +95,16 @@ public class Player : Singleton<Player>
         }
         Walk();
     }
-    void FixedUpdate()
-    {
 
+    private void FixedUpdate()
+    {
         Walk();
         Dash();
         UpdateCoyoteTimer();
         CastingSpell();
         UseAOESkill();
     }
+
     public SpriteRenderer SpriteRenderer
     {
         get { return spriteRenderer; }
@@ -118,42 +120,38 @@ public class Player : Singleton<Player>
         }
     }
 
-    void Walk()
+    private void Walk()
     {
         currentVelocity = new Vector2(inputHorizontal * walkSpeed, rb.velocity.y);
-
 
         if (!isCastingSpell && !isAttacking && inputHorizontal < 0 && !respawnOrDead)
         {
             playerAnimScr.WalkAnimation(true);
             rb.velocity = currentVelocity;
             spriteRenderer.flipX = true;
-
         }
         else if (!isCastingSpell && !isAttacking && inputHorizontal > 0 && !respawnOrDead)
         {
             playerAnimScr.WalkAnimation(true);
             rb.velocity = currentVelocity;
             spriteRenderer.flipX = false;
-
         }
         else
         {
             rb.velocity = new Vector2(0f, rb.velocity.y);
             playerAnimScr.WalkAnimation(false);
-
         }
     }
-    void Jump()
-    {
 
+    private void Jump()
+    {
         if (Input.GetButton("Jump") && isGrounded && !isCastingSpell)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         }
     }
 
-    void Dash()
+    private void Dash()
     {
         if (canDash)
         {
@@ -187,38 +185,34 @@ public class Player : Singleton<Player>
 
         isDash = false;
         canDash = false;
-
-
     }
-    void Launch()
+
+    private void Launch()
     {
-
-
         if (Input.GetKeyDown(KeyCode.Z) && !Input.GetKey(KeyCode.X) && inputHorizontal == 0 && !isAttacking && canLaunch)
         {
             isLaunch = true;
             if (!isGrounded)
             {
                 playerAnimScr.AerialLaunchAnimation();
-                Invoke("InstantiateProjectile", 0.4f);
+                Invoke(nameof(InstantiateProjectile), 0.4f);
             }
             else
             {
                 playerAnimScr.LaunchAnimation();
-                Invoke("InstantiateProjectile", 0.2f);
+                Invoke(nameof(InstantiateProjectile), 0.2f);
             }
 
             canLaunch = false;
             isAttacking = true;
 
-
-            Invoke("LaunchExit", 0.7f);
-
-            Invoke("ResetLaunch", 1.0f);
+            Invoke(nameof(LaunchExit), 0.7f);
+            Invoke(nameof(ResetLaunch), 1.0f);
         }
         else isLaunch = false;
     }
-    void InstantiateProjectile()
+
+    private void InstantiateProjectile()
     {
         GameObject projectile;
 
@@ -233,18 +227,20 @@ public class Player : Singleton<Player>
             projectile.GetComponent<Projectile>().SetDirection(Vector2.right);
         }
 
-
         Destroy(projectile, 3.0f);
     }
-    void LaunchExit()
+
+    private void LaunchExit()
     {
         isAttacking = false;
     }
-    void ResetLaunch()
+
+    private void ResetLaunch()
     {
         canLaunch = true;
     }
-    void UseAOESkill()
+
+    private void UseAOESkill()
     {
         if (playerAOEPrefab != null && !isUseAOE)
         {
@@ -252,26 +248,27 @@ public class Player : Singleton<Player>
             Instantiate(playerAOEPrefab, transform.position, transform.rotation);
         }
     }
-    void CastingSpell()
+
+    private void CastingSpell()
     {
         if (Input.GetKey(KeyCode.X) && inputHorizontal == 0)
         {
-            if (!CastingSpellEffect.isPlaying && isGrounded)
+            if (!castingSpellEffect.isPlaying && isGrounded)
             {
                 playerAnimScr.CastingSpellAnimation(true);
-                CastingSpellEffect.Play();
+                castingSpellEffect.Play();
                 isCastingSpell = true;
             }
         }
-        else if (CastingSpellEffect.isPlaying)
+        else if (castingSpellEffect.isPlaying)
         {
             playerAnimScr.CastingSpellAnimation(false);
-            CastingSpellEffect.Stop();
+            castingSpellEffect.Stop();
             isCastingSpell = false;
         }
     }
 
-    IEnumerator CoyoteTimeJump()
+    private IEnumerator CoyoteTimeJump()
     {
         isCoroutineActive = true;
         yield return new WaitForSeconds(coyoteTime);
@@ -283,41 +280,24 @@ public class Player : Singleton<Player>
             StartCoroutine(CoyoteTimeJump());
         }
     }
+
     internal void CheckGrounded()
     {
-
         Vector2 groundRay = new Vector2(transform.position.x, GetComponent<Collider2D>().bounds.center.y);
         RaycastHit2D groundHit = Physics2D.Raycast(groundRay, Vector2.down, 1f, LayerMask.GetMask("groundLayer"));
         Debug.DrawRay(groundRay, Vector2.down * 1f, Color.green);
 
         if (groundHit.collider != null)
         {
-
-
-
             isGrounded = true;
         }
         else
         {
-
-
             isGrounded = false;
         }
-
-
-
     }
 
-
-
-
-
-
-
-
-
-
-    void UpdateCoyoteTimer()
+    private void UpdateCoyoteTimer()
     {
         if (isGrounded)
         {
@@ -329,22 +309,20 @@ public class Player : Singleton<Player>
         }
     }
 
-
-
-    void OffDamaged()
+    private void OffDamaged()
     {
         Physics2D.IgnoreLayerCollision(6, 7, false);
         spriteRenderer.color = new Color(1, 1, 1, 1);
         isDamaged = false;
-
     }
-    void OnTriggerStay2D(Collider2D other)
+
+    private void OnTriggerStay2D(Collider2D other)
     {
         if (isDamaged) return;
 
         int bumpForceDirc = transform.position.x - other.transform.position.x > 0 ? 1 : -1;
 
-        if (other.gameObject.tag == "Enemy")
+        if (other.gameObject.CompareTag("Enemy"))
         {
             health.PlayerCurrentVal -= 10;
             isDamaged = true;
@@ -354,16 +332,16 @@ public class Player : Singleton<Player>
 
             spriteRenderer.color = new Color(1, 1, 1, 0.4f);
             Physics2D.IgnoreLayerCollision(6, 7, true);
-            Invoke("OffDamaged", 3f);
+            Invoke(nameof(OffDamaged), 3f);
         }
     }
-    void OnCollisionEnter2D(Collision2D other)
+
+    private void OnCollisionEnter2D(Collision2D other)
     {
         if (isDamaged) return;
 
         if (other.gameObject.CompareTag("Attack") || other.gameObject.CompareTag("Enemy"))
         {
-
             health.PlayerCurrentVal -= 10;
             isDamaged = true;
 
@@ -372,17 +350,16 @@ public class Player : Singleton<Player>
 
             spriteRenderer.color = new Color(1, 1, 1, 0.4f);
             Physics2D.IgnoreLayerCollision(6, 7, true);
-            Invoke("OffDamaged", 3f);
+            Invoke(nameof(OffDamaged), 3f);
         }
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (isDamaged) return;
 
         if (other.gameObject.CompareTag("Attack") || other.gameObject.CompareTag("Enemy"))
         {
-
             health.PlayerCurrentVal -= 10;
             isDamaged = true;
 
@@ -391,40 +368,30 @@ public class Player : Singleton<Player>
 
             spriteRenderer.color = new Color(1, 1, 1, 0.4f);
             Physics2D.IgnoreLayerCollision(6, 7, true);
-            Invoke("OffDamaged", 3f);
+            Invoke(nameof(OffDamaged), 3f);
         }
     }
-
-
-
-
 
     public void OnDeath()
     {
-
         StartCoroutine(DeadJump());
         rb.constraints = RigidbodyConstraints2D.FreezePositionX;
-
-
     }
 
-    IEnumerator DeadJump()
+    private IEnumerator DeadJump()
     {
         respawnOrDead = true;
 
-
-        Debug.Log("DeadJumpStart");
         playerAnimScr.DeadJumpAnimation(true);
         yield return new WaitForSeconds(1f);
         deadWait = true;
-        Debug.Log("DeadJumpEnd");
 
         if (deadWait)
         {
             rb.AddForce(new Vector2(0, 1500f));
             rb.gravityScale = 8;
             gameObject.GetComponent<Collider2D>().enabled = false;
-
         }
     }
 }
+
